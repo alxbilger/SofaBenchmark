@@ -24,8 +24,6 @@ set(SOFABENCHMARK_SRC "src")
 
 set(HEADER_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/NarrowPhaseDetection.h
-    ${SOFABENCHMARK_SRC}/benchmarks/SofaHelper/AdvancedTimer.h
-    ${SOFABENCHMARK_SRC}/benchmarks/SofaHelper/MapPtrStableCompare.h
 )
 
 set(SOURCE_FILES
