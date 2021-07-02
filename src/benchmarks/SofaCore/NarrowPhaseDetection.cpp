@@ -15,7 +15,7 @@ BENCHMARK(BM_NarrowPhaseDetection_endNarrowPhase)->RangeMultiplier(2)->Range(8, 
 
 void BM_NarrowPhaseDetection_getDetectionOutputs(benchmark::State &state)
 {
-    sofa::helper::vector<sofa::component::collision::PointCollisionModel<sofa::defaulttype::Vec3Types>::SPtr> collisionModels;
+    sofa::type::vector<sofa::component::collision::PointCollisionModel<sofa::defaulttype::Vec3Types>::SPtr> collisionModels;
     collisionModels.reserve(state.range(0));
     std::generate_n(std::back_inserter(collisionModels), state.range(0), [](){ return New<sofa::component::collision::PointCollisionModel<sofa::defaulttype::Vec3Types> >();});
 
@@ -40,7 +40,7 @@ void BM_NarrowPhaseDetection_getDetectionOutputs(benchmark::State &state)
 
 void BM_NarrowPhaseDetection_endNarrowPhase(benchmark::State &state)
 {
-    sofa::helper::vector<sofa::component::collision::PointCollisionModel<sofa::defaulttype::Vec3Types>::SPtr> collisionModels;
+    sofa::type::vector<sofa::component::collision::PointCollisionModel<sofa::defaulttype::Vec3Types>::SPtr> collisionModels;
     collisionModels.reserve(state.range(0));
     std::generate_n(std::back_inserter(collisionModels), state.range(0), [](){ return New<sofa::component::collision::PointCollisionModel<sofa::defaulttype::Vec3Types> >();});
 

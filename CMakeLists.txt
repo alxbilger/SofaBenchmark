@@ -17,23 +17,28 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googlebenchmark)
 
+sofa_find_package(Sofa.Type REQUIRED)
 sofa_find_package(SofaCore REQUIRED)
 sofa_find_package(SofaMeshCollision REQUIRED)
 
 set(SOFABENCHMARK_SRC "src")
 
-set(HEADER_FILES
+set(HEADER_FILES "")
+set(SOURCE_FILES ${SOFABENCHMARK_SRC}/Main.cpp)
+
+list(APPEND SOURCE_FILES ${SOFABENCHMARK_SRC}/benchmarks/SofaKernel/MatBenchmark.cpp)
+
+
+list(APPEND HEADER_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/NarrowPhaseDetection.h
 )
-
-set(SOURCE_FILES
-    ${SOFABENCHMARK_SRC}/Main.cpp
-
+list(APPEND SOURCE_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/NarrowPhaseDetection.cpp
-    ${SOFABENCHMARK_SRC}/benchmarks/SofaHelper/AdvancedTimer.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaHelper/MapPtrStableCompare.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/SofaHelper/AdvancedTimer.cpp
 )
+
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} benchmark::benchmark)
-target_link_libraries(${PROJECT_NAME} SofaCore SofaMeshCollision)
+target_link_libraries(${PROJECT_NAME} Sofa.Type SofaCore SofaMeshCollision)
