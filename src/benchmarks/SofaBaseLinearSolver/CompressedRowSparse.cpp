@@ -1,9 +1,9 @@
 #include <benchmark/benchmark.h>
 
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.inl>
+#include <sofa/linearalgebra/CompressedRowSparseMatrix.h>
 #include <sofa/helper/RandomGenerator.h>
 
-using sofa::component::linearsolver::CompressedRowSparseMatrix;
+using sofa::linearalgebra::CompressedRowSparseMatrix;
 
 template<class T>
 class BM_CRS_Fixture : public benchmark::Fixture
@@ -76,7 +76,11 @@ private:
     static const std::vector< std::pair<sofa::Index, sofa::Index> > matrixPositions;
 };
 template<class T>
-const sofa::type::Mat<3, 3, double> BM_CRS_Fixture<T>::bloc = { {1., 2., 3.}, {4., 5., 6.}, {7., 8., 9.}};
+const sofa::type::Mat<3, 3, double> BM_CRS_Fixture<T>::bloc {
+    sofa::type::Mat<3, 3, double>::Line{1., 2., 3.},
+    sofa::type::Mat<3, 3, double>::Line{4., 5., 6.},
+    sofa::type::Mat<3, 3, double>::Line{7., 8., 9.}
+};
 template<class T>
 const std::vector< std::pair<sofa::Index, sofa::Index> > BM_CRS_Fixture<T>::matrixPositions = []()
 {

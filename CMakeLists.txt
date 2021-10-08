@@ -26,9 +26,6 @@ set(SOFABENCHMARK_SRC "src")
 set(HEADER_FILES "")
 set(SOURCE_FILES ${SOFABENCHMARK_SRC}/Main.cpp)
 
-list(APPEND SOURCE_FILES ${SOFABENCHMARK_SRC}/benchmarks/SofaKernel/MatBenchmark.cpp)
-
-
 list(APPEND HEADER_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/NarrowPhaseDetection.h
 )

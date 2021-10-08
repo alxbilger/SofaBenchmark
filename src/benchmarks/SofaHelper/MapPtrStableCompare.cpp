@@ -1,4 +1,5 @@
 #include <benchmark/benchmark.h>
+#include <unordered_map>
 #include <sofa/helper/map_ptr_stable_compare.h>
 
 /// 3 benchmark functions to compare insertion of pairs of pointers into different associative arrays:
@@ -152,4 +153,3 @@ void BM_MapPtrStableCompare_erase(benchmark::State &state)
         }
     }
 }
-
