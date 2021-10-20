@@ -42,3 +42,8 @@ list(APPEND SOURCE_FILES
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} benchmark::benchmark)
 target_link_libraries(${PROJECT_NAME} Sofa.Type SofaCore SofaMeshCollision)
+
+# regroup benchmark stuff into its own IDE folder
+set_target_properties(benchmark PROPERTIES FOLDER SofaBenchmark)
+set_target_properties(benchmark_main PROPERTIES FOLDER SofaBenchmark)
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER SofaBenchmark)
