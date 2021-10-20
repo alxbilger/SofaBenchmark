@@ -10,12 +10,12 @@ class BM_CRS_Fixture : public benchmark::Fixture
 {
 public:
     /// Setup a matrix of size 3000x3000
-    void SetUp(const ::benchmark::State& state)
+    void SetUp(const ::benchmark::State& state) override
     {
         mat.resize(3 * 1000, 3 * 1000);
     }
 
-    void TearDown(const ::benchmark::State& state)
+    void TearDown(const ::benchmark::State& state) override
     {
         mat.clear();
     }
