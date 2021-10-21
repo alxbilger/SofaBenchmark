@@ -28,6 +28,7 @@ set(SOURCE_FILES ${SOFABENCHMARK_SRC}/Main.cpp)
 
 list(APPEND HEADER_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/NarrowPhaseDetection.h
+    ${SOFABENCHMARK_SRC}/utils/RandomValuePool.h
 )
 list(APPEND SOURCE_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/SofaBaseLinearSolver/CompressedRowSparse.cpp
@@ -36,12 +37,16 @@ list(APPEND SOURCE_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/SofaHelper/AdvancedTimer.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaHelper/MapPtrStableCompare.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.LinearAlgebra/SparseMatrixProduct.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/fixed_array.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Vec.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Matrix.cpp
 )
 
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
-target_link_libraries(${PROJECT_NAME} benchmark::benchmark)
-target_link_libraries(${PROJECT_NAME} Sofa.Type SofaCore SofaMeshCollision)
+target_link_libraries(${PROJECT_NAME} PUBLIC benchmark::benchmark)
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Type SofaCore SofaMeshCollision)
+target_include_directories(${PROJECT_NAME} PUBLIC ${SOFABENCHMARK_SRC})
 
 # regroup benchmark stuff into its own IDE folder
 set_target_properties(benchmark PROPERTIES FOLDER SofaBenchmark)
