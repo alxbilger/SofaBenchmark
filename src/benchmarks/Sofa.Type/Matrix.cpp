@@ -8,6 +8,7 @@
 #include <array>
 
 static void BM_Matrix_typemat3x3f_construct(benchmark::State& state);
+static void BM_Matrix_typemat3x3f_construct_noinit(benchmark::State& state);
 static void BM_Matrix_eigenmat33_construct(benchmark::State& state);
 static void BM_Matrix_typemat3x3f_transpose(benchmark::State& state);
 static void BM_Matrix_eigenmat33_transpose(benchmark::State& state);
@@ -24,6 +25,7 @@ constexpr int64_t minSubIterations = 8 << 4;
 constexpr int64_t maxSubIterations = 8 << 6;
 
 BENCHMARK(BM_Matrix_typemat3x3f_construct)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+BENCHMARK(BM_Matrix_typemat3x3f_construct_noinit)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
 BENCHMARK(BM_Matrix_eigenmat33_construct)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
 BENCHMARK(BM_Matrix_typemat3x3f_transpose)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
 BENCHMARK(BM_Matrix_eigenmat33_transpose)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
@@ -45,10 +47,28 @@ void BM_Matrix_typemat3x3f_construct(benchmark::State& state)
     {
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
-            benchmark::DoNotOptimize(sofa::type::Mat3x3f{ 
-                sofa::type::fixed_array<float, 3>{values[i], values[i + 1], values[i + 2]},
-                sofa::type::fixed_array<float, 3>{values[i + 3], values[i + 4], values[i + 5]},
-                sofa::type::fixed_array<float, 3>{values[i + 6], values[i + 7], values[i + 8] }
+            benchmark::DoNotOptimize(sofa::type::Mat3x3f{
+                sofa::type::Vec<3, float>{values[i], values[i + 1], values[i + 2]},
+                sofa::type::Vec<3, float>{values[i + 3], values[i + 4], values[i + 5]},
+                sofa::type::Vec<3, float>{values[i + 6], values[i + 7], values[i + 8] }
+            });
+        }
+    }
+}
+
+void BM_Matrix_typemat3x3f_construct_noinit(benchmark::State& state)
+{
+    constexpr auto totalsize = maxSubIterations * 9;
+    const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
+
+    for (auto _ : state)
+    {
+        for (unsigned int i = 0; i < state.range(0); ++i)
+        {
+            benchmark::DoNotOptimize(sofa::type::Mat3x3f{
+                sofa::type::Mat3x3f::LineNoInit{values[i], values[i + 1], values[i + 2]},
+                sofa::type::Mat3x3f::LineNoInit{values[i + 3], values[i + 4], values[i + 5]},
+                sofa::type::Mat3x3f::LineNoInit{values[i + 6], values[i + 7], values[i + 8] }
             });
         }
     }
@@ -87,10 +107,10 @@ void BM_Matrix_typemat3x3f_assign(benchmark::State& state)
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
             sofa::type::Mat3x3f m1{
-                sofa::type::fixed_array<float, 3>{values[i], values[i + 1], values[i + 2]},
-                sofa::type::fixed_array<float, 3>{values[i + 3], values[i + 4], values[i + 5]},
-                sofa::type::fixed_array<float, 3>{values[i + 6], values[i + 7], values[i + 8] }
-                };
+                sofa::type::Mat3x3f::LineNoInit{values[i], values[i + 1], values[i + 2]},
+                sofa::type::Mat3x3f::LineNoInit{values[i + 3], values[i + 4], values[i + 5]},
+                sofa::type::Mat3x3f::LineNoInit{values[i + 6], values[i + 7], values[i + 8] }
+            };
             sofa::type::Mat3x3f m2;
             m2 = m1;
             benchmark::DoNotOptimize(m2);
@@ -130,9 +150,9 @@ void BM_Matrix_typemat3x3f_transpose(benchmark::State& state)
         for (unsigned int i = 0; i < state.range(0); i++)
         {
             vc.push_back(sofa::type::Mat3x3f{
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
                 });
         }
 
@@ -140,8 +160,8 @@ void BM_Matrix_typemat3x3f_transpose(benchmark::State& state)
 
         for (auto& mat : vc)
         {
-            mat.transpose();
-            benchmark::DoNotOptimize(mat);
+            auto t = mat.transposed();
+            benchmark::DoNotOptimize(t);
         }
     }
 }
@@ -168,8 +188,8 @@ void BM_Matrix_eigenmat33_transpose(benchmark::State& state)
 
         for (auto& mat : vc)
         {
-            mat.transpose();
-            benchmark::DoNotOptimize(mat);
+            Eigen::Matrix3f t = mat.transpose();
+            benchmark::DoNotOptimize(t);
         }
     }
 }
@@ -190,14 +210,14 @@ void BM_Matrix_typemat3x3f_mult(benchmark::State& state)
         for (unsigned int i = 0; i < state.range(0); i++)
         {
             vc1.push_back(sofa::type::Mat3x3f{
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
                 });
             vc2.push_back(sofa::type::Mat3x3f{
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 9], values[i * 9 + 10], values[i * 9 + 11]},
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 12], values[i * 9 + 13], values[i * 9 + 14]},
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 15], values[i * 9 + 16], values[i * 9 + 17]}
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 9], values[i * 9 + 10], values[i * 9 + 11]},
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 12], values[i * 9 + 13], values[i * 9 + 14]},
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 15], values[i * 9 + 16], values[i * 9 + 17]}
                 });
         }
 
@@ -238,7 +258,8 @@ void BM_Matrix_eigenmat33_mult(benchmark::State& state)
 
         for (auto i = 0; i < state.range(0); i++)
         {
-            benchmark::DoNotOptimize(vc1[i]* vc2[i]);
+            Eigen::Matrix3f product = vc1[i] * vc2[i];
+            benchmark::DoNotOptimize(product);
         }
     }
 }
@@ -258,9 +279,9 @@ void BM_Matrix_typemat3x3f_determinant(benchmark::State& state)
         for (unsigned int i = 0; i < state.range(0); i++)
         {
             vc.push_back(sofa::type::Mat3x3f{
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
                 });
         }
 
@@ -315,9 +336,9 @@ void BM_Matrix_typemat3x3f_invert(benchmark::State& state)
         for (unsigned int i = 0; i < state.range(0); i++)
         {
             vc.push_back(sofa::type::Mat3x3f{
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
-                    sofa::type::fixed_array<float, 3>{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
+                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
                 });
         }
 
@@ -352,7 +373,8 @@ void BM_Matrix_eigenmat33_invert(benchmark::State& state)
 
         for (auto& mat : vc)
         {
-            benchmark::DoNotOptimize(mat.inverse());
+            Eigen::Matrix3f inv = mat.inverse();
+            benchmark::DoNotOptimize(inv);
         }
     }
 }
