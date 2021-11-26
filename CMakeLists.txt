@@ -20,6 +20,7 @@ FetchContent_MakeAvailable(googlebenchmark)
 sofa_find_package(Sofa.Type REQUIRED)
 sofa_find_package(SofaCore REQUIRED)
 sofa_find_package(SofaMeshCollision REQUIRED)
+sofa_find_package(SofaComponentAll REQUIRED)
 
 set(SOFABENCHMARK_SRC "src")
 
@@ -41,12 +42,13 @@ list(APPEND SOURCE_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/fixed_array.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Vec.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Matrix.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/TestScene.cpp
 )
 
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC benchmark::benchmark)
-target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Type SofaCore SofaMeshCollision)
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Type SofaCore SofaMeshCollision SofaComponentAll)
 target_include_directories(${PROJECT_NAME} PUBLIC ${SOFABENCHMARK_SRC})
 
 # regroup benchmark stuff into its own IDE folder
