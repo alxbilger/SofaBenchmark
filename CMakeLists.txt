@@ -29,6 +29,7 @@ set(SOURCE_FILES ${SOFABENCHMARK_SRC}/Main.cpp)
 
 list(APPEND HEADER_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/NarrowPhaseDetection.h
+    ${SOFABENCHMARK_SRC}/benchmarks/scenes/BenchScene.h
     ${SOFABENCHMARK_SRC}/utils/RandomValuePool.h
 )
 list(APPEND SOURCE_FILES
@@ -42,7 +43,7 @@ list(APPEND SOURCE_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/fixed_array.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Vec.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Matrix.cpp
-    ${SOFABENCHMARK_SRC}/benchmarks/TestScene.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/scenes/SimpleScene.cpp
 )
 
 
