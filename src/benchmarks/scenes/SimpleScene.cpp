@@ -26,4 +26,4 @@ constexpr int64_t minSubIterations = 8;
 constexpr int64_t maxSubIterations = 128;
 constexpr int64_t stepSubIterations = 2;
 
-BENCHMARK_TEMPLATE1(BM_Scene_bench, SimpleScene)->RangeMultiplier(stepSubIterations)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMillisecond);
+BENCHMARK_TEMPLATE1(BM_Scene_bench_SimulationFactor, SimpleScene)->RangeMultiplier(stepSubIterations)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMillisecond);
