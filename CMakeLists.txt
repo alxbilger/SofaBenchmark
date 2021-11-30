@@ -44,6 +44,9 @@ list(APPEND SOURCE_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Vec.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Matrix.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/scenes/SimpleScene.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/scenes/DiagonalMass.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/scenes/MeshMatrixMass.cpp
+
 )
 
 
