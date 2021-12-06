@@ -1,6 +1,6 @@
-#include <benchmarks/scenes/BenchScene.h>
+#include <SofaBenchmarkScenes/BenchScene.h>
 
-struct MeshMatrixMassScene
+struct DiagonalMassScene
 {
     static auto getRoot()
     {
@@ -14,31 +14,30 @@ struct MeshMatrixMassScene
     <DefaultContactManager response="default" name="collision response" />
     <DiscreteIntersection />
 
-    <MeshGmshLoader name="MeshLoader" filename="mesh/liver.msh" />
-    <MeshObjLoader name="LiverSurface" filename="mesh/liver-smooth.obj" />
+    <MeshGmshLoader name="loader" filename="mesh/liver.msh" />
+    <MeshObjLoader name="meshLoader_0" filename="mesh/liver-smooth.obj" handleSeams="1" />
 
-    <Node name="Liver">
+    <Node name="Liver" depend="topo dofs">
         <EulerImplicitSolver name="integration scheme" />
         <CGLinearSolver name="linear solver" iterations="1000" tolerance="1e-9" threshold="1e-9"/>
-        <MechanicalObject name="dofs" src="@../MeshLoader"/>
+        <MechanicalObject name="dofs" src="@../loader" />
         <!-- Container for the tetrahedra-->
-        <TetrahedronSetTopologyContainer name="TetraTopo" src="@../MeshLoader"/>
+        <TetrahedronSetTopologyContainer name="TetraTopo" src="@../loader" />
         <TetrahedronSetGeometryAlgorithms name="GeomAlgo" />
-        <MeshMatrixMass totalMass="60" name="SparseMass" topology="@TetraTopo" lumping="true"/>
+        <DiagonalMass totalMass="60" name="diagonalMass" />
         <TetrahedralCorotationalFEMForceField template="Vec3d" name="FEM" method="large" poissonRatio="0.45" youngModulus="5000" />
         <FixedConstraint name="FixedConstraint" indices="3 39 64" />
-
-        <Node name="Visu" >
-            <OglModel  name="VisualModel" src="@../../LiverSurface" color="cyan"/>
+        
+        <Node name="Visu">
+            <OglModel name="VisualModel" src="@../../meshLoader_0" color="red" />
             <BarycentricMapping name="VisualMapping" input="@../dofs" output="@VisualModel" />
         </Node>
-        <Node name="Surf" >
-            <SphereLoader filename="mesh/liver.sph" />
+        <Node name="Surf">
+    	    <SphereLoader filename="mesh/liver.sph" />
             <MechanicalObject name="spheres" position="@[-1].position" />
-            <SphereCollisionModel name="CollisionModel" listRadius="@[-2].listRadius"/>
+            <SphereCollisionModel name="CollisionModel" listRadius="@[-2].listRadius" />
             <BarycentricMapping name="CollisionMapping" input="@../dofs" output="@spheres" />
         </Node>
-
     </Node>
 </Node>
     )SCENE_DELIM";
@@ -57,11 +56,11 @@ constexpr int64_t minNbSimulations = 2;
 constexpr int64_t maxNbSimulations = 32;
 constexpr int64_t stepNbSimulations = 2;
 
-BENCHMARK_TEMPLATE1(BM_Scene_bench_SimulationFactor, MeshMatrixMassScene)->RangeMultiplier(stepNbSimulations)->Ranges({ {minNbSimulations, maxNbSimulations} })->Unit(benchmark::kMillisecond);
+BENCHMARK_TEMPLATE1(BM_Scene_bench_SimulationFactor, DiagonalMassScene)->RangeMultiplier(stepNbSimulations)->Ranges({ {minNbSimulations, maxNbSimulations} })->Unit(benchmark::kMillisecond);
 
 // Measure one simulation with increasing number of steps
 constexpr int64_t minNbSteps = 512;
 constexpr int64_t maxNbSteps = 4096;
 constexpr int64_t stepNbSteps = 2;
 
-BENCHMARK_TEMPLATE1(BM_Scene_bench_StepFactor, MeshMatrixMassScene)->RangeMultiplier(stepNbSteps)->Ranges({ {minNbSteps, maxNbSteps} })->Unit(benchmark::kMillisecond);
+BENCHMARK_TEMPLATE1(BM_Scene_bench_StepFactor, DiagonalMassScene)->RangeMultiplier(stepNbSteps)->Ranges({ {minNbSteps, maxNbSteps} })->Unit(benchmark::kMillisecond);

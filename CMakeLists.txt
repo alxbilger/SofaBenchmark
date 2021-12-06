@@ -20,7 +20,6 @@ FetchContent_MakeAvailable(googlebenchmark)
 sofa_find_package(Sofa.Type REQUIRED)
 sofa_find_package(SofaCore REQUIRED)
 sofa_find_package(SofaMeshCollision REQUIRED)
-sofa_find_package(SofaComponentAll REQUIRED)
 
 set(SOFABENCHMARK_SRC "src")
 
@@ -29,7 +28,6 @@ set(SOURCE_FILES ${SOFABENCHMARK_SRC}/Main.cpp)
 
 list(APPEND HEADER_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/NarrowPhaseDetection.h
-    ${SOFABENCHMARK_SRC}/benchmarks/scenes/BenchScene.h
     ${SOFABENCHMARK_SRC}/utils/RandomValuePool.h
 )
 list(APPEND SOURCE_FILES
@@ -43,12 +41,12 @@ list(APPEND SOURCE_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/fixed_array.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Vec.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Matrix.cpp
-    ${SOFABENCHMARK_SRC}/benchmarks/scenes/SimpleScene.cpp
-    ${SOFABENCHMARK_SRC}/benchmarks/scenes/DiagonalMass.cpp
-    ${SOFABENCHMARK_SRC}/benchmarks/scenes/MeshMatrixMass.cpp
-
 )
 
+option(SOFABENCHMARK_BUILD_BENCH_SCENES "Add benchmarking SOFA scenes." ON)
+if(SOFABENCHMARK_BUILD_BENCH_SCENES)
+    add_subdirectory(SofaBenchmarkScenes)
+endif()
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC benchmark::benchmark)

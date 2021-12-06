@@ -1,4 +1,4 @@
-#include <benchmarks/scenes/BenchScene.h>
+#include <SofaBenchmarkScenes/BenchScene.h>
 
 struct SimpleScene
 {
