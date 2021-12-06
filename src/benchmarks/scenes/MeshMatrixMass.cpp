@@ -24,7 +24,7 @@ struct MeshMatrixMassScene
         <!-- Container for the tetrahedra-->
         <TetrahedronSetTopologyContainer name="TetraTopo" src="@../MeshLoader"/>
         <TetrahedronSetGeometryAlgorithms name="GeomAlgo" />
-        <MeshMatrixMass totalMass="60" name="SparseMass" topology="@TetraTopo" />
+        <MeshMatrixMass totalMass="60" name="SparseMass" topology="@TetraTopo" lumping="true"/>
         <TetrahedralCorotationalFEMForceField template="Vec3d" name="FEM" method="large" poissonRatio="0.45" youngModulus="5000" />
         <FixedConstraint name="FixedConstraint" indices="3 39 64" />
 
