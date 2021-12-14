@@ -16,8 +16,14 @@ static void BM_Matrix_typemat3x3f_invert(benchmark::State& state);
 static void BM_Matrix_eigenmat33_invert(benchmark::State& state);
 static void BM_Matrix_typemat3x3f_determinant(benchmark::State& state);
 static void BM_Matrix_eigenmat33_determinant(benchmark::State& state);
-static void BM_Matrix_typemat3x3f_mult(benchmark::State& state);
-static void BM_Matrix_eigenmat33_mult(benchmark::State& state);
+template<int N>
+static void BM_Matrix_typematf_matmult(benchmark::State& state);
+template<int N>
+static void BM_Matrix_eigenmatf_matmult(benchmark::State& state);
+template<int N>
+static void BM_Matrix_typematf_vecmult(benchmark::State& state);
+template<int N>
+static void BM_Matrix_eigenmatf_vecmult(benchmark::State& state);
 static void BM_Matrix_typemat3x3f_assign(benchmark::State& state);
 static void BM_Matrix_eigenmat33_assign(benchmark::State& state);
 
@@ -33,8 +39,14 @@ BENCHMARK(BM_Matrix_typemat3x3f_invert)->RangeMultiplier(2)->Ranges({ {minSubIte
 BENCHMARK(BM_Matrix_eigenmat33_invert)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
 BENCHMARK(BM_Matrix_typemat3x3f_determinant)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
 BENCHMARK(BM_Matrix_eigenmat33_determinant)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK(BM_Matrix_typemat3x3f_mult)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK(BM_Matrix_eigenmat33_mult)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(BM_Matrix_typematf_matmult, 3)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(BM_Matrix_typematf_matmult, 24)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_matmult, 3)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_matmult, 24)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(BM_Matrix_typematf_vecmult, 3)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(BM_Matrix_typematf_vecmult, 24)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_vecmult, 3)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_vecmult, 24)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
 BENCHMARK(BM_Matrix_typemat3x3f_assign)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
 BENCHMARK(BM_Matrix_eigenmat33_assign)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
 
@@ -141,23 +153,20 @@ void BM_Matrix_typemat3x3f_transpose(benchmark::State& state)
     constexpr auto totalsize = maxSubIterations * 9;
     const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
 
+    std::vector<sofa::type::Mat3x3f> vc;
+    vc.reserve(state.range(0));
+
+    for (unsigned int i = 0; i < state.range(0); i++)
+    {
+        vc.push_back(sofa::type::Mat3x3f{
+                sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
+                sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
+                sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
+            });
+    }
+
     for (auto _ : state)
     {
-        state.PauseTiming();
-        std::vector<sofa::type::Mat3x3f> vc;
-        vc.reserve(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); i++)
-        {
-            vc.push_back(sofa::type::Mat3x3f{
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
-                });
-        }
-
-        state.ResumeTiming();
-
         for (auto& mat : vc)
         {
             auto t = mat.transposed();
@@ -171,21 +180,18 @@ void BM_Matrix_eigenmat33_transpose(benchmark::State& state)
     constexpr auto totalsize = maxSubIterations * 9;
     const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
 
+    std::vector<Eigen::Matrix3f> vc;
+    vc.resize(state.range(0));
+
+    for (unsigned int i = 0; i < state.range(0); i++)
+    {
+        vc[i] << values[i * 9 + 0] , values[i * 9 + 1] , values[i * 9 + 2],
+                 values[i * 9 + 3] , values[i * 9 + 4] , values[i * 9 + 5],
+                 values[i * 9 + 6] , values[i * 9 + 7] , values[i * 9 + 8];
+    }
+
     for (auto _ : state)
     {
-        state.PauseTiming();
-        std::vector<Eigen::Matrix3f> vc;
-        vc.resize(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); i++)
-        {
-            vc[i] << values[i * 9 + 0] , values[i * 9 + 1] , values[i * 9 + 2],
-                     values[i * 9 + 3] , values[i * 9 + 4] , values[i * 9 + 5],
-                     values[i * 9 + 6] , values[i * 9 + 7] , values[i * 9 + 8];
-        }
-
-        state.ResumeTiming();
-
         for (auto& mat : vc)
         {
             Eigen::Matrix3f t = mat.transpose();
@@ -194,35 +200,36 @@ void BM_Matrix_eigenmat33_transpose(benchmark::State& state)
     }
 }
 
-void BM_Matrix_typemat3x3f_mult(benchmark::State& state)
+template<int N>
+void BM_Matrix_typematf_matmult(benchmark::State& state)
 {
-    constexpr auto totalsize = maxSubIterations * 9 * 2;
+    constexpr auto totalsize = maxSubIterations * N*N * 2;
     const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
+
+    std::vector<sofa::type::Mat<N, N, float > > vc1;
+    std::vector<sofa::type::Mat<N, N, float > > vc2;
+    vc1.reserve(state.range(0));
+    vc2.reserve(state.range(0));
+
+    auto it = values.begin();
+
+    for (unsigned int i = 0; i < state.range(0); i++)
+    {
+        sofa::type::Mat<N, N, float > mat1, mat2;
+        for (int a = 0; a < N; ++a)
+        {
+            for (int b = 0; b < N; ++b)
+            {
+                mat1[a][b] = *it++;
+                mat2[a][b] = *it++;
+            }
+        }
+        vc1.push_back(mat1);
+        vc2.push_back(mat2);
+    }
 
     for (auto _ : state)
     {
-        state.PauseTiming();
-        std::vector<sofa::type::Mat3x3f> vc1;
-        std::vector<sofa::type::Mat3x3f> vc2;
-        vc1.reserve(state.range(0));
-        vc2.reserve(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); i++)
-        {
-            vc1.push_back(sofa::type::Mat3x3f{
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
-                });
-            vc2.push_back(sofa::type::Mat3x3f{
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 9], values[i * 9 + 10], values[i * 9 + 11]},
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 12], values[i * 9 + 13], values[i * 9 + 14]},
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 15], values[i * 9 + 16], values[i * 9 + 17]}
-                });
-        }
-
-        state.ResumeTiming();
-
         for (auto i = 0 ; i < state.range(0); i++)
         {
             benchmark::DoNotOptimize(vc1[i]*vc2[i]);
@@ -230,35 +237,120 @@ void BM_Matrix_typemat3x3f_mult(benchmark::State& state)
     }
 }
 
-void BM_Matrix_eigenmat33_mult(benchmark::State& state)
+template<int N>
+void BM_Matrix_eigenmatf_matmult(benchmark::State& state)
 {
-    constexpr auto totalsize = maxSubIterations * 9 * 2;
+    constexpr auto totalsize = maxSubIterations * N*N * 2;
     const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
+
+    std::vector<Eigen::Matrix<float, N, N > > vc1;
+    std::vector<Eigen::Matrix<float, N, N > > vc2;
+    vc1.reserve(state.range(0));
+    vc2.reserve(state.range(0));
+    benchmark::DoNotOptimize(vc1);
+    benchmark::DoNotOptimize(vc2);
+
+    auto it = values.begin();
+
+    for (auto i = 0; i < state.range(0); i++)
+    {
+        Eigen::Matrix<float, N, N > mat1, mat2;
+        for (int a = 0; a < N; ++a)
+        {
+            for (int b = 0; b < N; ++b)
+            {
+                mat1(a,b) = *it++;
+                mat2(a,b) = *it++;
+            }
+        }
+        vc1.push_back(mat1);
+        vc2.push_back(mat2);
+    }
 
     for (auto _ : state)
     {
-        state.PauseTiming();
-        std::vector<Eigen::Matrix3f> vc1;
-        std::vector<Eigen::Matrix3f> vc2;
-        vc1.resize(state.range(0));
-        vc2.resize(state.range(0));
-        benchmark::DoNotOptimize(vc1);
-        benchmark::DoNotOptimize(vc2);
-
         for (auto i = 0; i < state.range(0); i++)
         {
-            vc1[i] << values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2],
-                      values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5],
-                      values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8];
-            vc2[i] << values[i * 9 + 9], values[i * 9 + 10], values[i * 9 + 11],
-                      values[i * 9 + 12], values[i * 9 + 13], values[i * 9 + 14],
-                      values[i * 9 + 15], values[i * 9 + 16], values[i * 9 + 17];
+            Eigen::Matrix<float, N, N > product = vc1[i] * vc2[i];
+            benchmark::DoNotOptimize(product);
         }
-        state.ResumeTiming();
+    }
+}
 
+template <int N>
+void BM_Matrix_typematf_vecmult(benchmark::State& state)
+{
+    constexpr auto totalsize = maxSubIterations * (N*N + N);
+    const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
+
+    std::vector<sofa::type::Mat<N, N, float > > vc1;
+    std::vector<sofa::type::Vec<N, float > > vc2;
+    vc1.reserve(state.range(0));
+    vc2.reserve(state.range(0));
+
+    auto it = values.begin();
+
+    for (unsigned int i = 0; i < state.range(0); i++)
+    {
+        sofa::type::Mat<N, N, float > mat;
+        sofa::type::Vec<N, float > vec;
+        for (int a = 0; a < N; ++a)
+        {
+            for (int b = 0; b < N; ++b)
+            {
+                mat[a][b] = *it++;
+            }
+            vec[a] = *it++;
+        }
+        vc1.push_back(mat);
+        vc2.push_back(vec);
+    }
+
+    for (auto _ : state)
+    {
+        for (auto i = 0 ; i < state.range(0); i++)
+        {
+            benchmark::DoNotOptimize(vc1[i]*vc2[i]);
+        }
+    }
+}
+
+template <int N>
+void BM_Matrix_eigenmatf_vecmult(benchmark::State& state)
+{
+    constexpr auto totalsize = maxSubIterations * (N*N + N);
+    const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
+
+    std::vector<Eigen::Matrix<float, N, N > > vc1;
+    std::vector<Eigen::Matrix<float, N, 1 > > vc2;
+    vc1.reserve(state.range(0));
+    vc2.reserve(state.range(0));
+    benchmark::DoNotOptimize(vc1);
+    benchmark::DoNotOptimize(vc2);
+
+    auto it = values.begin();
+
+    for (auto i = 0; i < state.range(0); i++)
+    {
+        Eigen::Matrix<float, N, N > mat1;
+        Eigen::Matrix<float, N, 1 > mat2;
+        for (int a = 0; a < N; ++a)
+        {
+            for (int b = 0; b < N; ++b)
+            {
+                mat1(a,b) = *it++;
+            }
+            mat2(a,0) = *it++;
+        }
+        vc1.push_back(mat1);
+        vc2.push_back(mat2);
+    }
+
+    for (auto _ : state)
+    {
         for (auto i = 0; i < state.range(0); i++)
         {
-            Eigen::Matrix3f product = vc1[i] * vc2[i];
+            Eigen::Matrix<float, N, 1 > product = vc1[i] * vc2[i];
             benchmark::DoNotOptimize(product);
         }
     }
@@ -270,23 +362,20 @@ void BM_Matrix_typemat3x3f_determinant(benchmark::State& state)
     constexpr auto totalsize = maxSubIterations * 9;
     const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
 
+    std::vector<sofa::type::Mat3x3f> vc;
+    vc.reserve(state.range(0));
+
+    for (unsigned int i = 0; i < state.range(0); i++)
+    {
+        vc.push_back(sofa::type::Mat3x3f{
+                sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
+                sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
+                sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
+            });
+    }
+
     for (auto _ : state)
     {
-        state.PauseTiming();
-        std::vector<sofa::type::Mat3x3f> vc;
-        vc.reserve(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); i++)
-        {
-            vc.push_back(sofa::type::Mat3x3f{
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
-                });
-        }
-
-        state.ResumeTiming();
-
         for (auto& mat : vc)
         {
             benchmark::DoNotOptimize(sofa::type::determinant(mat));
@@ -299,21 +388,18 @@ void BM_Matrix_eigenmat33_determinant(benchmark::State& state)
     constexpr auto totalsize = maxSubIterations * 9;
     const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
 
+    std::vector<Eigen::Matrix3f> vc;
+    vc.resize(state.range(0));
+
+    for (unsigned int i = 0; i < state.range(0); i++)
+    {
+        vc[i] << values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2],
+            values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5],
+            values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8];
+    }
+
     for (auto _ : state)
     {
-        state.PauseTiming();
-        std::vector<Eigen::Matrix3f> vc;
-        vc.resize(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); i++)
-        {
-            vc[i] << values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2],
-                values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5],
-                values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8];
-        }
-
-        state.ResumeTiming();
-
         for (auto& mat : vc)
         {
             benchmark::DoNotOptimize(mat.determinant());
@@ -327,23 +413,20 @@ void BM_Matrix_typemat3x3f_invert(benchmark::State& state)
     constexpr auto totalsize = maxSubIterations * 9;
     const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
 
+    std::vector<sofa::type::Mat3x3f> vc;
+    vc.reserve(state.range(0));
+
+    for (unsigned int i = 0; i < state.range(0); i++)
+    {
+        vc.push_back(sofa::type::Mat3x3f{
+                sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
+                sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
+                sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
+            });
+    }
+
     for (auto _ : state)
     {
-        state.PauseTiming();
-        std::vector<sofa::type::Mat3x3f> vc;
-        vc.reserve(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); i++)
-        {
-            vc.push_back(sofa::type::Mat3x3f{
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
-                    sofa::type::Mat3x3f::LineNoInit{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
-                });
-        }
-
-        state.ResumeTiming();
-
         for (auto& mat : vc)
         {
             benchmark::DoNotOptimize(mat.inverted());
@@ -356,21 +439,18 @@ void BM_Matrix_eigenmat33_invert(benchmark::State& state)
     constexpr auto totalsize = maxSubIterations * 9;
     const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
 
+    std::vector<Eigen::Matrix3f> vc;
+    vc.resize(state.range(0));
+
+    for (unsigned int i = 0; i < state.range(0); i++)
+    {
+        vc[i] << values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2],
+            values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5],
+            values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8];
+    }
+
     for (auto _ : state)
     {
-        state.PauseTiming();
-        std::vector<Eigen::Matrix3f> vc;
-        vc.resize(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); i++)
-        {
-            vc[i] << values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2],
-                values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5],
-                values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8];
-        }
-
-        state.ResumeTiming();
-
         for (auto& mat : vc)
         {
             Eigen::Matrix3f inv = mat.inverse();
