@@ -43,10 +43,14 @@ list(APPEND SOURCE_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Matrix.cpp
 )
 
+option(SOFABENCHMARK_BUILD_BENCH_SCENES "Add benchmarking SOFA scenes." ON)
+if(SOFABENCHMARK_BUILD_BENCH_SCENES)
+    add_subdirectory(SofaBenchmarkScenes)
+endif()
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC benchmark::benchmark)
-target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Type SofaCore SofaMeshCollision)
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Type SofaCore SofaMeshCollision SofaComponentAll)
 target_include_directories(${PROJECT_NAME} PUBLIC ${SOFABENCHMARK_SRC})
 
 # regroup benchmark stuff into its own IDE folder
