@@ -44,6 +44,9 @@ void BM_Scene_bench_SimulationFactor(benchmark::State& state)
         }
     }
 
+    state.counters["FPS"] = benchmark::Counter(TScene::nbSteps * state.range(0), benchmark::Counter::kIsIterationInvariantRate);
+    state.counters["frame"] = benchmark::Counter(TScene::nbSteps * state.range(0), benchmark::Counter::kIsIterationInvariantRate | benchmark::Counter::kInvert);
+
     sofa::simulation::graph::cleanup();
 }
 
@@ -71,6 +74,9 @@ void BM_Scene_bench_StepFactor(benchmark::State& state)
         state.PauseTiming();
         simu->unload(root);
     }
+
+    state.counters["FPS"] = benchmark::Counter(state.range(0), benchmark::Counter::kIsIterationInvariantRate);
+    state.counters["frame"] = benchmark::Counter(state.range(0), benchmark::Counter::kIsIterationInvariantRate | benchmark::Counter::kInvert);
 
     sofa::simulation::graph::cleanup();
 }
