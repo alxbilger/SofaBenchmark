@@ -13,6 +13,8 @@ set(SOURCE_FILES
     ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/SimpleScene.cpp
     ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/mass/DiagonalMass.cpp
     ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/mass/MeshMatrixMass.cpp
+    ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/fem/TetrahedronFEMForceField.cpp
+
 )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
