@@ -29,6 +29,8 @@ void BM_Scene_bench_SimulationFactor(benchmark::State& state)
     {
         for (auto i = 0; i < state.range(0); ++i)
         {
+            state.PauseTiming();
+
             // Not ideal but did not find a way to clone/duplicate a scene
             sofa::simulation::Node::SPtr root = TScene::getRoot();
             root->init(sofa::core::execparams::defaultInstance());
