@@ -29,18 +29,20 @@ set(SOURCE_FILES ${SOFABENCHMARK_SRC}/Main.cpp)
 list(APPEND HEADER_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/NarrowPhaseDetection.h
     ${SOFABENCHMARK_SRC}/utils/RandomValuePool.h
+    ${SOFABENCHMARK_SRC}/utils/thread_pool.hpp
 )
 list(APPEND SOURCE_FILES
+    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.LinearAlgebra/SparseMatrixProduct.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Matrix.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Vec.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/fixed_array.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaBaseLinearSolver/CompressedRowSparse.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/MultiVecId.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/NarrowPhaseDetection.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/ReadAccessor.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaHelper/AdvancedTimer.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaHelper/MapPtrStableCompare.cpp
-    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.LinearAlgebra/SparseMatrixProduct.cpp
-    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/fixed_array.cpp
-    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Vec.cpp
-    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Matrix.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/SofaSimulationCore/TaskScheduler.cpp
 )
 
 option(SOFABENCHMARK_BUILD_BENCH_SCENES "Add benchmarking SOFA scenes." ON)
