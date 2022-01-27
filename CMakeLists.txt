@@ -40,6 +40,7 @@ list(APPEND SOURCE_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/MultiVecId.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/NarrowPhaseDetection.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/ReadAccessor.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/SofaDefaultType/MapMapSparseMatrix.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaHelper/AdvancedTimer.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaHelper/MapPtrStableCompare.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaSimulationCore/TaskScheduler.cpp

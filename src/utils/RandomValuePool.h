@@ -14,7 +14,7 @@ struct RandomValuePool
             std::uniform_real_distribution<float> rand(0, 100);
             std::random_device seed;
             std::mt19937 gen(seed());
-            std::generate(v.begin(), v.end(), [&]() { return rand(gen); });
+            std::generate(v.begin(), v.end(), [&]() { return static_cast<Type>(rand(gen)); });
             bGenerated = true;
         }
         return v;
