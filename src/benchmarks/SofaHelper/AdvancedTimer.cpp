@@ -84,6 +84,8 @@ void advancedTimerDeepTree(benchmark::State& state)
 void BM_AdvancedTimer_deepTreeEnabled(benchmark::State& state)
 {
     sofa::helper::AdvancedTimer::setEnabled("Animate", true);
+    sofa::helper::AdvancedTimer::setInterval("Animate", 1);
+    sofa::helper::AdvancedTimer::setOutputType("Animate", "gui");
     advancedTimerDeepTree(state);
 }
 
