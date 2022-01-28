@@ -30,6 +30,15 @@ void BM_AdvancedTimer_begin_end(benchmark::State &state)
     }
 }
 
+
+static const std::vector<std::string> listTimerNames = []()
+{
+    std::vector<std::string> names;
+    std::generate_n(std::back_inserter(names), 1.1 * std::pow(1 << 6, 4), [n = 0]() mutable { return std::to_string(n++);});
+    return names;
+}();
+
+
 void BM_AdvancedTimer_largeNumberTimers(benchmark::State& state)
 {
     for (auto _ : state)
@@ -37,9 +46,9 @@ void BM_AdvancedTimer_largeNumberTimers(benchmark::State& state)
         sofa::helper::AdvancedTimer::begin("Animate");
         for (int64_t i = 0; i < state.range(0); ++i)
         {
-            const auto iStr = std::to_string(i);
-            sofa::helper::AdvancedTimer::stepBegin(iStr);
-            sofa::helper::AdvancedTimer::stepEnd(iStr);
+            const auto& timerName = listTimerNames[i];
+            sofa::helper::AdvancedTimer::stepBegin(timerName);
+            sofa::helper::AdvancedTimer::stepEnd(timerName);
         }
         sofa::helper::AdvancedTimer::end("Animate");
     }
@@ -50,9 +59,8 @@ void subStep(int64_t depth, int64_t i, int64_t nbTimers, int64_t maxDepth, int64
     if (depth == maxDepth)
         return;
 
-    std::stringstream ss;
-    ss << "timer_" << depth << "-" << i;
-    sofa::helper::AdvancedTimer::stepBegin(ss.str());
+    const auto& timerName = listTimerNames[timersCounter];
+    sofa::helper::AdvancedTimer::stepBegin(timerName);
     ++timersCounter;
 
     for (unsigned int j = 0; j < nbTimers; ++j)
@@ -60,7 +68,7 @@ void subStep(int64_t depth, int64_t i, int64_t nbTimers, int64_t maxDepth, int64
         subStep(depth + 1, j, nbTimers, maxDepth, timersCounter);
     }
 
-    sofa::helper::AdvancedTimer::stepEnd(ss.str());
+    sofa::helper::AdvancedTimer::stepEnd(timerName);
 }
 
 void advancedTimerDeepTree(benchmark::State& state)
