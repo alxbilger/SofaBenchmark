@@ -20,6 +20,8 @@ using sofa::simulation::setSimulation;
 template<typename TScene>
 void BM_Scene_bench_SimulationFactor(benchmark::State& state)
 {
+    sofa::helper::logging::MessageDispatcher::clearHandlers() ;
+    
     sofa::component::initSofaComponentAll();
 
     sofa::simulation::Simulation* simu = new sofa::simulation::graph::DAGSimulation();
