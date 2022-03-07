@@ -24,7 +24,7 @@ struct SparseLDLSolverScene
         <BoxROI name="box" box="-10 -1 -0.0001  -5 4 0.0001"/>
         <FixedConstraint indices="@box.indices" />
 
-        <SparseLDLSolver template="CompressedRowSparseMatrixMat3x3d" useSymbolicDecomposition="false"/>
+        <SparseLDLSolver template="CompressedRowSparseMatrixMat3x3d"/>
         <HexahedronFEMForceField name="FEM" youngModulus="4000" poissonRatio="0.3" method="large" />
     </Node>
 </Node>
