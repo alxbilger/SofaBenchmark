@@ -18,11 +18,13 @@ struct SparseLDLSolverScene
 
     <Node name="M1">
         <EulerImplicitSolver name="odesolver" rayleighStiffness="0.1" rayleighMass="0.1" />
-        <SparseLDLSolver template="CompressedRowSparseMatrixMat3x3d"/>
-        <MechanicalObject />
-        <UniformMass vertexMass="1" />
-        <RegularGridTopology nx="4" ny="4" nz="20" xmin="-9" xmax="-6" ymin="0" ymax="3" zmin="0" zmax="19" />
-        <FixedConstraint indices="0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15" />
+        <MechanicalObject name="DoFs" />
+        <UniformMass name="mass" totalMass="320" />
+        <RegularGridTopology name="grid" nx="4" ny="4" nz="20" xmin="-9" xmax="-6" ymin="0" ymax="3" zmin="0" zmax="19" />
+        <BoxROI name="box" box="-10 -1 -0.0001  -5 4 0.0001"/>
+        <FixedConstraint indices="@box.indices" />
+
+        <SparseLDLSolver template="CompressedRowSparseMatrixMat3x3d" useSymbolicDecomposition="false"/>
         <HexahedronFEMForceField name="FEM" youngModulus="4000" poissonRatio="0.3" method="large" />
     </Node>
 </Node>
