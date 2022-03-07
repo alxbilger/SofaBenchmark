@@ -71,3 +71,27 @@ BM_NarrowPhaseDetection_getDetectionOutputs/128      44993 us        44994 us   
 BM_NarrowPhaseDetection_getDetectionOutputs/256     238668 us       238664 us            3
 ```
 
+## Benchmark SOFA Scenes
+
+A second application is available: SofaBenchmarkScenes.
+It must be enabled in CMake with the variable `SOFABENCHMARK_BUILD_BENCH_SCENES`.
+While SofaBenchmark focus on code snippet, this application is specific to benchmark entire SOFA scenes.
+
+### Output
+
+An example of output for SofaBenchmarkScenes is:
+
+```
+-------------------------------------------------------------------------------------------------------------------
+Benchmark                                                         Time             CPU   Iterations UserCounters...
+-------------------------------------------------------------------------------------------------------------------
+BM_Scene_bench_SimulationFactor<SparseLDLSolverScene>/2        1583 ms         1562 ms            1 FPS=128/s frame=7.8125ms
+BM_Scene_bench_SimulationFactor<SparseLDLSolverScene>/4        3192 ms         3219 ms            1 FPS=124.272/s frame=8.04688ms
+BM_Scene_bench_SimulationFactor<SparseLDLSolverScene>/8        6325 ms         6281 ms            1 FPS=127.363/s frame=7.85156ms
+BM_Scene_bench_SimulationFactor<SparseLDLSolverScene>/16      12743 ms        12766 ms            1 FPS=125.337/s frame=7.97852ms
+BM_Scene_bench_StepFactor<SparseLDLSolverScene>/512            3940 ms         3906 ms            1 FPS=131.072/s frame=7.62939ms
+BM_Scene_bench_StepFactor<SparseLDLSolverScene>/1024           7810 ms         7781 ms            1 FPS=131.598/s frame=7.59888ms
+BM_Scene_bench_StepFactor<SparseLDLSolverScene>/2048          15717 ms        15719 ms            1 FPS=130.29/s frame=7.67517ms
+
+```
+
