@@ -53,3 +53,11 @@ constexpr int64_t maxNbSteps = 2048;
 constexpr int64_t stepNbSteps = 2;
 
 BENCHMARK_TEMPLATE1(BM_Scene_bench_StepFactor, SparseLDLSolverScene)->RangeMultiplier(stepNbSteps)->Ranges({ {minNbSteps, maxNbSteps} })->Unit(benchmark::kMillisecond);
+
+
+void BM_SparseLDLSolver(benchmark::State& state)
+{
+    BM_Scene_bench_AdvancedTimer<SparseLDLSolverScene>(state, {"MBKBuild", "MBKSolve"});
+}
+
+BENCHMARK(BM_SparseLDLSolver)->Arg(50)->Unit(benchmark::kMillisecond)->Iterations(10);
