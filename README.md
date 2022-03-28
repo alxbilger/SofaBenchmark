@@ -77,6 +77,11 @@ A second application is available: SofaBenchmarkScenes.
 It must be enabled in CMake with the variable `SOFABENCHMARK_BUILD_BENCH_SCENES`.
 While SofaBenchmark focus on code snippet, this application is specific to benchmark entire SOFA scenes.
 
+Several types of scene benchmarks are available:
+- `BM_Scene_bench_SimulationFactor`: executes `n` times the same simulation with a fixed number of time steps
+- `BM_Scene_bench_AdvancedTimer`: executes the simulation once with a number of time steps provided as a parameter. Also access `AvancedTimer`.
+- `BM_Scene_bench_StepFactor`: executes the simulation once with a number of time steps provided as a parameter.
+
 ### Output
 
 An example of output for SofaBenchmarkScenes is:
@@ -92,6 +97,32 @@ BM_Scene_bench_SimulationFactor<SparseLDLSolverScene>/16      12743 ms        12
 BM_Scene_bench_StepFactor<SparseLDLSolverScene>/512            3940 ms         3906 ms            1 FPS=131.072/s frame=7.62939ms
 BM_Scene_bench_StepFactor<SparseLDLSolverScene>/1024           7810 ms         7781 ms            1 FPS=131.598/s frame=7.59888ms
 BM_Scene_bench_StepFactor<SparseLDLSolverScene>/2048          15717 ms        15719 ms            1 FPS=130.29/s frame=7.67517ms
+
+```
+
+### AdvancedTimer
+
+SOFA has a mechanism of measuring its performances using the class `AdvancedTimer` (https://www.sofa-framework.org/community/doc/programming-with-sofa/api-overview/advanced-timer/).
+The timers can be identified using labels.
+A generic benchmark template is available in SofaBenchmark allowing to execute a SOFA simulation, measures its total duration and also access a list of `AdvancedTimer` to report them as a [custom counter](https://github.com/google/benchmark/blob/main/docs/user_guide.md#custom-counters).
+See this example:
+```cpp
+void BM_SparseLDLSolver(benchmark::State& state)
+{
+    BM_Scene_bench_AdvancedTimer<SparseLDLSolverScene>(state, {"MBKBuild", "MBKSolve"});
+}
+```
+
+The scene is defined in the struct `SparseLDLSolverScene`.
+In addition to the scene, a couple of `AdvancedTimer` is also reported: `MBKBuild` and `MBKSolve`.
+
+#### Output
+
+```
+----------------------------------------------------------------------------------------------
+Benchmark                                    Time             CPU   Iterations UserCounters...
+----------------------------------------------------------------------------------------------
+BM_SparseLDLSolver/50/iterations:10        202 ms          200 ms           10 FPS=250/s MBKBuild=556.384u MBKSolve=3.27496m frame=4ms
 
 ```
 
