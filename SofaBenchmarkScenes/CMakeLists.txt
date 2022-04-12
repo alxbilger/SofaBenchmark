@@ -16,6 +16,7 @@ set(SOURCE_FILES
     ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/fem/StandardTetrahedralFEMForceField.cpp
     ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/fem/StiffSpringForceField.cpp
     ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/fem/TetrahedronFEMForceField.cpp
+    ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/fem/TriangularFEMForceFieldOptim.cpp
     ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/linearsolver/SparseLDLSolver.cpp
 )
 
