@@ -18,6 +18,7 @@ set(SOURCE_FILES
     ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/fem/TetrahedronFEMForceField.cpp
     ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/fem/TriangularFEMForceFieldOptim.cpp
     ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/linearsolver/SparseLDLSolver.cpp
+    ${SOFABENCHMARKSCENES_SRC}/SofaBenchmarkScenes/linearsolver/SparseLUSolver.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
