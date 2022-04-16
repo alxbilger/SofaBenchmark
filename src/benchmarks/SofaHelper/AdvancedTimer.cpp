@@ -1,6 +1,7 @@
 #include <sstream>
 #include <benchmark/benchmark.h>
 #include <sofa/helper/AdvancedTimer.h>
+#include <cmath>
 
 ///Evaluates the overhead of a call to AdvancedTimer
 static void BM_AdvancedTimer_begin_end(benchmark::State& state);
