@@ -17,6 +17,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googlebenchmark)
 
+find_package(SofaFramework REQUIRED)
 sofa_find_package(Sofa.Type REQUIRED)
 sofa_find_package(SofaCore REQUIRED)
 sofa_find_package(SofaMeshCollision REQUIRED)
