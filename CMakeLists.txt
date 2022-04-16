@@ -21,6 +21,7 @@ find_package(SofaFramework REQUIRED)
 sofa_find_package(Sofa.Type REQUIRED)
 sofa_find_package(SofaCore REQUIRED)
 sofa_find_package(SofaMeshCollision REQUIRED)
+sofa_find_package(SofaComponentAll REQUIRED)
 
 set(SOFABENCHMARK_SRC "src")
 
