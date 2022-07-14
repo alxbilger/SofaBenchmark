@@ -4,6 +4,7 @@
 
 #include <sofa/type/Vec.h>
 #include <sofa/type/Quat.h>
+
 #include <array>
 #include <numeric>
 
@@ -12,10 +13,11 @@ constexpr int64_t maxSubIterations = 8 << 10;
 
 static void BM_Quat_rotateVec(benchmark::State& state);
 BENCHMARK(BM_Quat_rotateVec)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-static void BM_Quat_rotateVec2(benchmark::State& state);
-BENCHMARK(BM_Quat_rotateVec2)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-static void BM_Quat_rotateVec_unloop(benchmark::State& state);
-BENCHMARK(BM_Quat_rotateVec_unloop)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+static void BM_Quat_rotateVec_impl_new(benchmark::State& state);
+BENCHMARK(BM_Quat_rotateVec_impl_new)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+static void BM_Quat_rotateVec_impl_old(benchmark::State& state);
+BENCHMARK(BM_Quat_rotateVec_impl_old)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+
 static void BM_Quat_invrotateVec(benchmark::State& state);
 BENCHMARK(BM_Quat_invrotateVec)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
 
@@ -45,12 +47,14 @@ void BM_Quat_rotateVec(benchmark::State& state)
 
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
-            benchmark::DoNotOptimize(quat[i].rotate(vect[i]));
+            const auto res = quat[i].rotate(vect[i]);
+            benchmark::DoNotOptimize(res);
         }
     }
 }
 
-void BM_Quat_rotateVec2(benchmark::State& state)
+
+void BM_Quat_rotateVec_impl_new(benchmark::State& state)
 {
     using Quat = sofa::type::Quatf;
     using Vec3 = sofa::type::Vec3f;
@@ -58,40 +62,16 @@ void BM_Quat_rotateVec2(benchmark::State& state)
     constexpr auto totalsize = maxSubIterations * 3 + maxSubIterations * 4;
     const auto& quatValues = RandomValuePool<float, totalsize>::get(0.f, 1.f);
     const auto& vectValues = RandomValuePool<float, totalsize>::get();
+
     std::vector<Quat> quat;
     std::vector<Vec3> vect;
 
-    for (auto _ : state)
+    auto rotateImpl = [](const Quat& q, const Vec3& v)
     {
-        state.PauseTiming();
-        quat.resize(state.range(0));
-        vect.resize(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); ++i)
-        {
-            quat.emplace_back(Quat{ quatValues[i * 4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3] });
-            vect.emplace_back(Vec3{ vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2] });
-        }
-        state.ResumeTiming();
-
-        for (unsigned int i = 0; i < state.range(0); ++i)
-        {
-            benchmark::DoNotOptimize(quat[i].rotate(vect[i]));
-        }
-    }
-}
-
-void BM_Quat_rotateVec_unloop(benchmark::State& state)
-{
-    using Quat = sofa::type::Quatf;
-    using Vec3 = sofa::type::Vec3f;
-
-    constexpr auto totalsize = maxSubIterations * 3 + maxSubIterations * 4;
-    const auto& quatValues = RandomValuePool<float, totalsize>::get(0.f, 1.f);
-    const auto& vectValues = RandomValuePool<float, totalsize>::get();
-
-    std::vector<Quat> quat;
-    std::vector<Vec3> vect;
+        const Vec3 qxyz{ q[0], q[1] , q[2] };
+        const auto& t = qxyz.cross(v) * 2;
+        return (v + q[3] * t + qxyz.cross(t));
+    };
 
     for (auto _ : state)
     {
@@ -118,7 +98,49 @@ void BM_Quat_rotateVec_unloop(benchmark::State& state)
                 quat[i][2] * t[0] - quat[i][0] * t[2],
                 quat[i][0] * t[1] - quat[i][1] * t[0]
             };
-            const auto res = vect[i] + quat[i][3] * t + tcross;
+
+            const auto res = rotateImpl(quat[i], vect[i]);
+            benchmark::DoNotOptimize(res);
+        }
+    }
+}
+
+void BM_Quat_rotateVec_impl_old(benchmark::State& state)
+{
+    using Quat = sofa::type::Quatf;
+    using Vec3 = sofa::type::Vec3f;
+
+    constexpr auto totalsize = maxSubIterations * 3 + maxSubIterations * 4;
+    const auto& quatValues = RandomValuePool<float, totalsize>::get(0.f, 1.f);
+    const auto& vectValues = RandomValuePool<float, totalsize>::get();
+    std::vector<Quat> quat;
+    std::vector<Vec3> vect;
+
+    auto previousRotateImpl = [](const Quat& _q, const Vec3& v)
+    {
+        return Vec3(
+            ((1.0f - 2.0f * (_q[1] * _q[1] + _q[2] * _q[2])) * v[0] + (2.0f * (_q[0] * _q[1] - _q[2] * _q[3])) * v[1] + (2.0f * (_q[2] * _q[0] + _q[1] * _q[3])) * v[2]),
+            ((2.0f * (_q[0] * _q[1] + _q[2] * _q[3])) * v[0] + (1.0f - 2.0f * (_q[2] * _q[2] + _q[0] * _q[0])) * v[1] + (2.0f * (_q[1] * _q[2] - _q[0] * _q[3])) * v[2]),
+            ((2.0f * (_q[2] * _q[0] - _q[1] * _q[3])) * v[0] + (2.0f * (_q[1] * _q[2] + _q[0] * _q[3])) * v[1] + (1.0f - 2.0f * (_q[1] * _q[1] + _q[0] * _q[0])) * v[2])
+        );
+    };
+
+    for (auto _ : state)
+    {
+        state.PauseTiming();
+        quat.resize(state.range(0));
+        vect.resize(state.range(0));
+
+        for (unsigned int i = 0; i < state.range(0); ++i)
+        {
+            quat.emplace_back(Quat{ quatValues[i * 4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3] });
+            vect.emplace_back(Vec3{ vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2] });
+        }
+        state.ResumeTiming();
+
+        for (unsigned int i = 0; i < state.range(0); ++i)
+        {
+            const auto res = previousRotateImpl(quat[i], vect[i]);
             benchmark::DoNotOptimize(res);
         }
     }
@@ -150,7 +172,8 @@ void BM_Quat_invrotateVec(benchmark::State& state)
 
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
-            benchmark::DoNotOptimize(quat[i].inverseRotate(vect[i]));
+            const auto res = quat[i].inverseRotate(vect[i]);
+            benchmark::DoNotOptimize(res);
         }
     }
 }
