@@ -7,11 +7,11 @@
 template<typename Type, std::size_t Size>
 struct RandomValuePool
 {
-    static auto get() -> const std::array<Type, Size>&
+    static auto get(Type minValue = static_cast<Type>(0), Type maxValue = static_cast<Type>(100)) -> const std::array<Type, Size>&
     {
         if (!bGenerated)
         {
-            std::uniform_real_distribution<float> rand(0, 100);
+            std::uniform_real_distribution<float> rand(minValue, maxValue);
             std::random_device seed;
             std::mt19937 gen(seed());
             std::generate(v.begin(), v.end(), [&]() { return static_cast<Type>(rand(gen)); });
