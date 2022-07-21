@@ -35,8 +35,8 @@ void BM_Quat_rotateVec(benchmark::State& state)
     for (auto _ : state)
     {
         state.PauseTiming();
-        quat.resize(state.range(0));
-        vect.resize(state.range(0));
+        quat.reserve(state.range(0));
+        vect.reserve(state.range(0));
 
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
@@ -76,12 +76,12 @@ void BM_Quat_rotateVec_impl_new(benchmark::State& state)
     for (auto _ : state)
     {
         state.PauseTiming();
-        quat.resize(state.range(0));
-        vect.resize(state.range(0));
+        quat.reserve(state.range(0));
+        vect.reserve(state.range(0));
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
-            quat.emplace_back(Quat{ quatValues[i * 4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3] });
-            vect.emplace_back(Vec3{ vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2] });
+            quat.emplace_back(quatValues[i * 4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3] );
+            vect.emplace_back( vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2] );
         }
         state.ResumeTiming();
 
@@ -128,13 +128,13 @@ void BM_Quat_rotateVec_impl_old(benchmark::State& state)
     for (auto _ : state)
     {
         state.PauseTiming();
-        quat.resize(state.range(0));
-        vect.resize(state.range(0));
+        quat.reserve(state.range(0));
+        vect.reserve(state.range(0));
 
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
-            quat.emplace_back(Quat{ quatValues[i * 4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3] });
-            vect.emplace_back(Vec3{ vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2] });
+            quat.emplace_back(quatValues[i * 4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3]);
+            vect.emplace_back(vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2] );
         }
         state.ResumeTiming();
 
@@ -160,13 +160,13 @@ void BM_Quat_invrotateVec(benchmark::State& state)
     for (auto _ : state)
     {
         state.PauseTiming();
-        quat.resize(state.range(0));
-        vect.resize(state.range(0));
+        quat.reserve(state.range(0));
+        vect.reserve(state.range(0));
 
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
-            quat.emplace_back(Quat{ quatValues[i*4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3] });
-            vect.emplace_back(Vec3{ vectValues[i*3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2] });
+            quat.emplace_back( quatValues[i*4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3] );
+            vect.emplace_back( vectValues[i*3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2]);
         }
         state.ResumeTiming();
 
