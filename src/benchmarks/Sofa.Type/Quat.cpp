@@ -40,8 +40,8 @@ void BM_Quat_rotateVec(benchmark::State& state)
 
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
-            quat.emplace_back(Quat{ quatValues[i*4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3] });
-            vect.emplace_back(Vec3{ vectValues[i*3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2] });
+            quat.emplace_back( quatValues[i*4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3] );
+            vect.emplace_back( vectValues[i*3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2] );
         }
         state.ResumeTiming();
 
