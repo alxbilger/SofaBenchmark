@@ -32,19 +32,17 @@ void BM_Quat_rotateVec(benchmark::State& state)
     std::vector<Quat> quat;
     std::vector<Vec3> vect;
 
+    quat.reserve(state.range(0));
+    vect.reserve(state.range(0));
+
+    for (unsigned int i = 0; i < state.range(0); ++i)
+    {
+        quat.emplace_back(quatValues[i * 4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3]);
+        vect.emplace_back(vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2]);
+    }
+
     for (auto _ : state)
     {
-        state.PauseTiming();
-        quat.reserve(state.range(0));
-        vect.reserve(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); ++i)
-        {
-            quat.emplace_back( quatValues[i*4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3] );
-            vect.emplace_back( vectValues[i*3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2] );
-        }
-        state.ResumeTiming();
-
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
             const auto res = quat[i].rotate(vect[i]);
@@ -73,18 +71,16 @@ void BM_Quat_rotateVec_impl_new(benchmark::State& state)
         return (v + q[3] * t + qxyz.cross(t));
     };
 
+    quat.reserve(state.range(0));
+    vect.reserve(state.range(0));
+    for (unsigned int i = 0; i < state.range(0); ++i)
+    {
+        quat.emplace_back(quatValues[i * 4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3]);
+        vect.emplace_back(vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2]);
+    }
+
     for (auto _ : state)
     {
-        state.PauseTiming();
-        quat.reserve(state.range(0));
-        vect.reserve(state.range(0));
-        for (unsigned int i = 0; i < state.range(0); ++i)
-        {
-            quat.emplace_back(quatValues[i * 4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3] );
-            vect.emplace_back( vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2] );
-        }
-        state.ResumeTiming();
-
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
             const auto t = Vec3{
@@ -125,19 +121,17 @@ void BM_Quat_rotateVec_impl_old(benchmark::State& state)
         );
     };
 
+    quat.reserve(state.range(0));
+    vect.reserve(state.range(0));
+
+    for (unsigned int i = 0; i < state.range(0); ++i)
+    {
+        quat.emplace_back(quatValues[i * 4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3]);
+        vect.emplace_back(vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2]);
+    }
+
     for (auto _ : state)
     {
-        state.PauseTiming();
-        quat.reserve(state.range(0));
-        vect.reserve(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); ++i)
-        {
-            quat.emplace_back(quatValues[i * 4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3]);
-            vect.emplace_back(vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2] );
-        }
-        state.ResumeTiming();
-
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
             const auto res = previousRotateImpl(quat[i], vect[i]);
@@ -157,19 +151,17 @@ void BM_Quat_invrotateVec(benchmark::State& state)
     std::vector<Quat> quat;
     std::vector<Vec3> vect;
 
+    quat.reserve(state.range(0));
+    vect.reserve(state.range(0));
+
+    for (unsigned int i = 0; i < state.range(0); ++i)
+    {
+        quat.emplace_back(quatValues[i * 4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3]);
+        vect.emplace_back(vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2]);
+    }
+
     for (auto _ : state)
     {
-        state.PauseTiming();
-        quat.reserve(state.range(0));
-        vect.reserve(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); ++i)
-        {
-            quat.emplace_back( quatValues[i*4 + 0], quatValues[i * 4 + 1], quatValues[i * 4 + 2], quatValues[i * 4 + 3] );
-            vect.emplace_back( vectValues[i*3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2]);
-        }
-        state.ResumeTiming();
-
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
             const auto res = quat[i].inverseRotate(vect[i]);
