@@ -4,12 +4,12 @@
 
 #include <sofa/simulation/Simulation.h>
 #include <sofa/simulation/Node.h>
-#include <SofaSimulationCommon/SceneLoaderXML.h>
-#include <SofaSimulationGraph/SimpleApi.h>
-#include <SofaSimulationGraph/DAGSimulation.h>
+#include <sofa/simulation/common/SceneLoaderXML.h>
+#include <sofa/simulation/graph/SimpleApi.h>
+#include <sofa/simulation/graph/DAGSimulation.h>
 
-#include <SofaSimulationGraph/init.h>
-#include <SofaComponentAll/initSofaComponentAll.h>
+#include <sofa/simulation/graph/init.h>
+#include <sofa/component/init.h>
 #include <sofa/helper/AdvancedTimer.h>
 
 #include <boost/intrusive_ptr.hpp>
@@ -23,7 +23,7 @@ void BM_Scene_bench_SimulationFactor(benchmark::State& state)
 {
     sofa::helper::logging::MessageDispatcher::clearHandlers() ;
     
-    sofa::component::initSofaComponentAll();
+    sofa::component::init();
 
     sofa::simulation::Simulation* simu = new sofa::simulation::graph::DAGSimulation();
     setSimulation(simu);
@@ -71,7 +71,7 @@ void BM_Scene_bench_AdvancedTimer(benchmark::State& state, const std::vector<con
     sofa::helper::AdvancedTimer::setInterval("Animate", 1);
     sofa::helper::AdvancedTimer::setOutputType("Animate", "gui");
 
-    sofa::component::initSofaComponentAll();
+    sofa::component::init();
 
     sofa::simulation::Simulation* simu = new sofa::simulation::graph::DAGSimulation();
     setSimulation(simu);
@@ -136,7 +136,7 @@ void BM_Scene_bench_StepFactor(benchmark::State& state)
 {
     sofa::helper::logging::MessageDispatcher::clearHandlers() ;
 
-    sofa::component::initSofaComponentAll();
+    sofa::component::init();
 
     sofa::simulation::Simulation* simu = new sofa::simulation::graph::DAGSimulation();
     setSimulation(simu);
