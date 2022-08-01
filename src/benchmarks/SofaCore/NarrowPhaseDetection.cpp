@@ -1,6 +1,6 @@
 #include "NarrowPhaseDetection.h"
 
-#include <SofaMeshCollision/PointModel.h>
+#include <sofa/component/collision/geometry/PointModel.h>
 #include <benchmark/benchmark.h>
 
 using sofa::core::objectmodel::New;
@@ -15,9 +15,9 @@ BENCHMARK(BM_NarrowPhaseDetection_endNarrowPhase)->RangeMultiplier(2)->Range(8, 
 
 void BM_NarrowPhaseDetection_getDetectionOutputs(benchmark::State &state)
 {
-    sofa::type::vector<sofa::component::collision::PointCollisionModel<sofa::defaulttype::Vec3Types>::SPtr> collisionModels;
+    sofa::type::vector<sofa::component::collision::geometry::PointCollisionModel<sofa::defaulttype::Vec3Types>::SPtr> collisionModels;
     collisionModels.reserve(state.range(0));
-    std::generate_n(std::back_inserter(collisionModels), state.range(0), [](){ return New<sofa::component::collision::PointCollisionModel<sofa::defaulttype::Vec3Types> >();});
+    std::generate_n(std::back_inserter(collisionModels), state.range(0), [](){ return New<sofa::component::collision::geometry::PointCollisionModel<sofa::defaulttype::Vec3Types> >();});
 
     for (auto _ : state)
     {
@@ -40,9 +40,9 @@ void BM_NarrowPhaseDetection_getDetectionOutputs(benchmark::State &state)
 
 void BM_NarrowPhaseDetection_endNarrowPhase(benchmark::State &state)
 {
-    sofa::type::vector<sofa::component::collision::PointCollisionModel<sofa::defaulttype::Vec3Types>::SPtr> collisionModels;
+    sofa::type::vector<sofa::component::collision::geometry::PointCollisionModel<sofa::defaulttype::Vec3Types>::SPtr> collisionModels;
     collisionModels.reserve(state.range(0));
-    std::generate_n(std::back_inserter(collisionModels), state.range(0), [](){ return New<sofa::component::collision::PointCollisionModel<sofa::defaulttype::Vec3Types> >();});
+    std::generate_n(std::back_inserter(collisionModels), state.range(0), [](){ return New<sofa::component::collision::geometry::PointCollisionModel<sofa::defaulttype::Vec3Types> >();});
 
     for (auto _ : state)
     {
