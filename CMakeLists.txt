@@ -17,11 +17,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googlebenchmark)
 
-find_package(SofaFramework REQUIRED)
+find_package(Sofa.Config REQUIRED)
 sofa_find_package(Sofa.Type REQUIRED)
-sofa_find_package(SofaCore REQUIRED)
-sofa_find_package(SofaMeshCollision REQUIRED)
-sofa_find_package(SofaComponentAll REQUIRED)
+sofa_find_package(Sofa.Core REQUIRED)
+sofa_find_package(Sofa.Simulation.Core REQUIRED)
+sofa_find_package(Sofa.Component.Collision.Geometry REQUIRED)
 
 set(SOFABENCHMARK_SRC "src")
 
@@ -58,7 +58,7 @@ endif()
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC benchmark::benchmark)
-target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Type SofaCore SofaMeshCollision SofaComponentAll)
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Type Sofa.Core Sofa.Simulation.Core Sofa.Component.Collision.Geometry)
 target_include_directories(${PROJECT_NAME} PUBLIC ${SOFABENCHMARK_SRC})
 
 # regroup benchmark stuff into its own IDE folder
