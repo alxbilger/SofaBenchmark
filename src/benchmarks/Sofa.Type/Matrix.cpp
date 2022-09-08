@@ -26,29 +26,37 @@ template<int N>
 static void BM_Matrix_eigenmatf_vecmult(benchmark::State& state);
 static void BM_Matrix_typemat3x3f_assign(benchmark::State& state);
 static void BM_Matrix_eigenmat33_assign(benchmark::State& state);
+static void BM_Matrix_typemat3x3f_multTranspose(benchmark::State& state);
+static void BM_Matrix_eigenmat3x3f_multTranspose(benchmark::State& state);
 
 constexpr int64_t minSubIterations = 8 << 4;
 constexpr int64_t maxSubIterations = 8 << 6;
 
-BENCHMARK(BM_Matrix_typemat3x3f_construct)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK(BM_Matrix_typemat3x3f_construct_noinit)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK(BM_Matrix_eigenmat33_construct)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK(BM_Matrix_typemat3x3f_transpose)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK(BM_Matrix_eigenmat33_transpose)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK(BM_Matrix_typemat3x3f_invert)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK(BM_Matrix_eigenmat33_invert)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK(BM_Matrix_typemat3x3f_determinant)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK(BM_Matrix_eigenmat33_determinant)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(BM_Matrix_typematf_matmult, 3)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(BM_Matrix_typematf_matmult, 24)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_matmult, 3)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_matmult, 24)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(BM_Matrix_typematf_vecmult, 3)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(BM_Matrix_typematf_vecmult, 24)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_vecmult, 3)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_vecmult, 24)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK(BM_Matrix_typemat3x3f_assign)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
-BENCHMARK(BM_Matrix_eigenmat33_assign)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+#define BMARGS ->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond)
+
+BENCHMARK(BM_Matrix_typemat3x3f_construct) BMARGS;
+BENCHMARK(BM_Matrix_typemat3x3f_construct_noinit) BMARGS;
+BENCHMARK(BM_Matrix_eigenmat33_construct) BMARGS;
+BENCHMARK(BM_Matrix_typemat3x3f_transpose) BMARGS;
+BENCHMARK(BM_Matrix_eigenmat33_transpose) BMARGS;
+BENCHMARK(BM_Matrix_typemat3x3f_invert) BMARGS;
+BENCHMARK(BM_Matrix_eigenmat33_invert) BMARGS;
+BENCHMARK(BM_Matrix_typemat3x3f_determinant) BMARGS;
+BENCHMARK(BM_Matrix_eigenmat33_determinant) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typematf_matmult, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typematf_matmult, 24) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_matmult, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_matmult, 24) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typematf_vecmult, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typematf_vecmult, 24) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_vecmult, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_vecmult, 24) BMARGS;
+BENCHMARK(BM_Matrix_typemat3x3f_assign) BMARGS;
+BENCHMARK(BM_Matrix_eigenmat33_assign) BMARGS;
+BENCHMARK(BM_Matrix_typemat3x3f_multTranspose) BMARGS;
+BENCHMARK(BM_Matrix_eigenmat3x3f_multTranspose) BMARGS;
+
+#undef BMARGS
 
 void BM_Matrix_typemat3x3f_construct(benchmark::State& state)
 {
@@ -455,6 +463,79 @@ void BM_Matrix_eigenmat33_invert(benchmark::State& state)
         {
             Eigen::Matrix3f inv = mat.inverse();
             benchmark::DoNotOptimize(inv);
+        }
+    }
+}
+
+void BM_Matrix_typemat3x3f_multTranspose(benchmark::State& state)
+{
+    constexpr auto totalsize = maxSubIterations * 3*3 * 2;
+    const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
+
+    std::vector<sofa::type::Mat<3, 3, float > > vc1;
+    std::vector<sofa::type::Mat<3, 3, float > > vc2;
+    vc1.reserve(state.range(0));
+    vc2.reserve(state.range(0));
+
+    auto it = values.begin();
+
+    for (unsigned int i = 0; i < state.range(0); i++)
+    {
+        sofa::type::Mat<3, 3, float > mat1, mat2;
+        for (int a = 0; a < 3; ++a)
+        {
+            for (int b = 0; b < 3; ++b)
+            {
+                mat1[a][b] = *it++;
+                mat2[a][b] = *it++;
+            }
+        }
+        vc1.push_back(mat1);
+        vc2.push_back(mat2);
+    }
+
+    for (auto _ : state)
+    {
+        for (auto i = 0 ; i < state.range(0); i++)
+        {
+            benchmark::DoNotOptimize(vc1[i].multTranspose(vc2[i]));
+        }
+    }
+}
+
+void BM_Matrix_eigenmat3x3f_multTranspose(benchmark::State& state)
+{
+    constexpr auto totalsize = maxSubIterations * 3*3 * 2;
+    const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
+
+    std::vector<Eigen::Matrix<float, 3, 3> > vc1;
+    std::vector<Eigen::Matrix<float, 3, 3> > vc2;
+    vc1.reserve(state.range(0));
+    vc2.reserve(state.range(0));
+
+    auto it = values.begin();
+
+    for (unsigned int i = 0; i < state.range(0); i++)
+    {
+        Eigen::Matrix<float, 3, 3> mat1, mat2;
+        for (int a = 0; a < 3; ++a)
+        {
+            for (int b = 0; b < 3; ++b)
+            {
+                mat1(a, b) = *it++;
+                mat2(a, b) = *it++;
+            }
+        }
+        vc1.push_back(mat1);
+        vc2.push_back(mat2);
+    }
+
+    for (auto _ : state)
+    {
+        for (auto i = 0 ; i < state.range(0); i++)
+        {
+            Eigen::Matrix<float, 3, 3 > product = vc1[i].transpose() * vc2[i];
+            benchmark::DoNotOptimize(product);
         }
     }
 }
