@@ -8,6 +8,7 @@
 #include <array>
 #include <numeric>
 #include <sofa/type/vector.h>
+#include <cstring>
 
 static void BM_Vec_dot(benchmark::State& state);
 
