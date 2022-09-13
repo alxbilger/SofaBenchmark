@@ -560,7 +560,7 @@ void BM_Matrix_typemat3x3f_constexpr_bench(benchmark::State& state)
 
     for (auto _ : state)
     {
-        constexpr sofa::type::Mat3x3f res = mat.inverted() * mat.transposed() * mat.inverted() * mat.inverted() * mat.transposed() * mat.inverted() * mat.transposed() * mat.inverted() / 3.0f;
+        constexpr sofa::type::Mat3x3f res = mat.transposed() * mat.transposed() * mat.transposed() / 3.0f;
         benchmark::DoNotOptimize(res);
     }
 }
@@ -578,7 +578,7 @@ void BM_Matrix_typemat3x3f_noconstexpr_bench(benchmark::State& state)
 
     for (auto _ : state)
     {
-        const sofa::type::Mat3x3f res = mat.inverted() * mat.transposed() * mat.inverted() * mat.inverted() * mat.transposed() * mat.inverted() * mat.transposed() * mat.inverted() / 3.0f;
+        const sofa::type::Mat3x3f res = mat.transposed() * mat.transposed() * mat.transposed() / 3.0f;
         benchmark::DoNotOptimize(res);
     }
 }
