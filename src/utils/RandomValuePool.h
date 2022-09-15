@@ -25,10 +25,9 @@ private:
 };
 
 // https://isocpp.org/blog/2017/01/cpp-weekly-episode-44-constexpr-compile-time-randomjason-turner
-template<typename Type, std::size_t Size>
-struct CompileTimeRandomValuePool
+template<typename Type>
+struct CompileTimeRandomValue
 {
-
     static constexpr auto seed()
     {
         std::uint64_t shifted = 0;
@@ -44,7 +43,12 @@ struct CompileTimeRandomValuePool
 
     struct PCG
     {
-        struct pcg32_random_t { std::uint64_t state = 0;  std::uint64_t inc = seed(); };
+        struct pcg32_random_t
+        {
+            std::uint64_t state = 0;
+            std::uint64_t inc = seed();
+        };
+
         pcg32_random_t rng;
         typedef std::uint32_t result_type;
 
@@ -77,9 +81,11 @@ struct CompileTimeRandomValuePool
 
     };
 
-    static constexpr auto get_random(int count)
+    static constexpr auto get(int count, std::uint64_t s = seed())
     {
         PCG pcg;
+        pcg.rng.inc = s;
+
         while (count > 0) {
             pcg();
             --count;
@@ -87,13 +93,17 @@ struct CompileTimeRandomValuePool
 
         return pcg();
     }
+};
 
-    static constexpr auto get(Type minValue = static_cast<Type>(0), Type maxValue = static_cast<Type>(100)) -> std::array<Type, Size>
+template<typename Type, std::size_t Size>
+struct CompileTimeRandomValuePool
+{
+    static constexpr auto get(Type minValue = static_cast<Type>(0), Type maxValue = static_cast<Type>(100), std::uint64_t seed = CompileTimeRandomValue<Type>::seed()) -> std::array<Type, Size>
     {
         std::array<Type, Size> v{};
         for (auto i = 0; i < Size; i++)
         {
-            v[i] = get_random(i);
+            v[i] = CompileTimeRandomValue<Type>::get(i, seed);
         }
         return v;
     }
