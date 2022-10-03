@@ -43,6 +43,7 @@ list(APPEND SOURCE_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/Quat.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Type/fixed_array.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaBaseLinearSolver/CompressedRowSparse.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/Data.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/MultiVecId.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/NarrowPhaseDetection.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaCore/ReadAccessor.cpp
