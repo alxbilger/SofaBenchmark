@@ -9,7 +9,7 @@
 #include <numeric>
 
 constexpr int64_t minSubIterations = 8 << 10;
-constexpr int64_t maxSubIterations = 8 << 10;
+constexpr int64_t maxSubIterations = 8 << 12;
 
 static void BM_Quat_rotateVec(benchmark::State& state);
 BENCHMARK(BM_Quat_rotateVec)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
@@ -20,6 +20,9 @@ BENCHMARK(BM_Quat_rotateVec_impl_old)->RangeMultiplier(2)->Ranges({ {minSubItera
 
 static void BM_Quat_invrotateVec(benchmark::State& state);
 BENCHMARK(BM_Quat_invrotateVec)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+
+static void BM_Quat_axisToQuat(benchmark::State& state);
+BENCHMARK(BM_Quat_axisToQuat)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
 
 void BM_Quat_rotateVec(benchmark::State& state)
 {
@@ -170,3 +173,31 @@ void BM_Quat_invrotateVec(benchmark::State& state)
     }
 }
 
+void BM_Quat_axisToQuat(benchmark::State& state)
+{
+    using Quat = sofa::type::Quatf;
+    using Vec3 = sofa::type::Vec3f;
+
+    constexpr auto totalsize = maxSubIterations * 3;
+    const auto& vectValues = RandomValuePool<float, totalsize>::get();
+    const auto& angles = RandomValuePool<float, maxSubIterations>::get(0.f, 1.f);
+
+    std::vector<Vec3> vect;
+
+    vect.reserve(state.range(0));
+
+    for (unsigned int i = 0; i < state.range(0); ++i)
+    {
+        vect.emplace_back(vectValues[i * 3 + 0], vectValues[i * 3 + 1], vectValues[i * 3 + 2]);
+    }
+
+    for (auto _ : state)
+    {
+        Quat q(sofa::type::QNOINIT);
+        for (unsigned int i = 0; i < state.range(0); ++i)
+        {
+            const auto res = q.axisToQuat(vect[i], angles[i]);
+            benchmark::DoNotOptimize(res);
+        }
+    }
+}
