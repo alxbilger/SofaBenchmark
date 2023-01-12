@@ -46,19 +46,19 @@ void BM_Vec_dot(benchmark::State& state)
     constexpr auto totalsize = maxSubIterations * 3 * 2;
     const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
 
+    std::vector<Container> vc1;
+    vc1.reserve(state.range(0));
+    std::vector<Container> vc2;
+    vc2.reserve(state.range(0));
+
+    for (unsigned int i = 0; i < state.range(0); ++i)
+    {
+        vc1.emplace_back(values[i*6 + 0], values[i * 6 + 1], values[i * 6 + 2] );
+        vc2.emplace_back(values[i*6 + 3], values[i * 6 + 4], values[i * 6 + 5] );
+    }
+
     for (auto _ : state)
     {
-        state.PauseTiming();
-        std::vector<Container> vc1(state.range(0));
-        std::vector<Container> vc2(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); ++i)
-        {
-            vc1.emplace_back(Container{ values[i*6 + 0], values[i * 6 + 1], values[i * 6 + 2] });
-            vc2.emplace_back(Container{ values[i*6 + 3], values[i * 6 + 4], values[i * 6 + 5] });
-        }
-        state.ResumeTiming();
-
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
             benchmark::DoNotOptimize(sofa::type::dot(vc1[i], vc2[i]));
@@ -73,19 +73,19 @@ static void BM_Vec_stdinnerproduct(benchmark::State& state)
     constexpr auto totalsize = maxSubIterations * 3 * 2;
     const std::array<float, totalsize>& values = RandomValuePool<float, totalsize>::get();
 
+    std::vector<Container> vc1;
+    vc1.reserve(state.range(0));
+    std::vector<Container> vc2;
+    vc2.reserve(state.range(0));
+
+    for (unsigned int i = 0; i < state.range(0); ++i)
+    {
+        vc1.emplace_back(Container{values[i*6 + 0], values[i * 6 + 1], values[i * 6 + 2]} );
+        vc2.emplace_back(Container{values[i*6 + 3], values[i * 6 + 4], values[i * 6 + 5]} );
+    }
+
     for (auto _ : state)
     {
-        state.PauseTiming();
-        std::vector<Container> vc1(state.range(0));
-        std::vector<Container> vc2(state.range(0));
-
-        for (unsigned int i = 0; i < state.range(0); ++i)
-        {
-            vc1.emplace_back(Container{ values[i * 6 + 0], values[i * 6 + 1], values[i * 6 + 2] });
-            vc2.emplace_back(Container{ values[i * 6 + 3], values[i * 6 + 4], values[i * 6 + 5] });
-        }
-        state.ResumeTiming();
-
         for (unsigned int i = 0; i < state.range(0); ++i)
         {
             benchmark::DoNotOptimize(std::inner_product(std::cbegin(vc1[i]), std::cend(vc1[i]), std::cbegin(vc2[i]), static_cast<float>(0)));
