@@ -43,8 +43,7 @@ struct DiagonalMassScene
     )SCENE_DELIM";
 
         return sofa::simulation::SceneLoaderXML::loadFromMemory("scene_xml",
-            sceneString.c_str(),
-            sceneString.size());
+            sceneString.c_str());
     }
 
     inline static const double dt{ 0.01 };

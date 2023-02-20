@@ -46,8 +46,7 @@ struct TetrahedronFEMForceFieldScene
     )SCENE_DELIM";
 
         return sofa::simulation::SceneLoaderXML::loadFromMemory("scene_xml",
-            sceneString.c_str(),
-            sceneString.size());
+            sceneString.c_str());
     }
 
     inline static const double dt{ 0.01 };
@@ -100,8 +99,7 @@ struct TetrahedralFEMForceFieldScene
     )SCENE_DELIM";
 
         return sofa::simulation::SceneLoaderXML::loadFromMemory("scene_xml",
-            sceneString.c_str(),
-            sceneString.size());
+            sceneString.c_str());
     }
 
     inline static const double dt{ 0.01 };
@@ -154,8 +152,7 @@ struct TetrahedralFEMForceFieldOptimScene
     )SCENE_DELIM";
 
         return sofa::simulation::SceneLoaderXML::loadFromMemory("scene_xml",
-            sceneString.c_str(),
-            sceneString.size());
+            sceneString.c_str());
     }
 
     inline static const double dt{ 0.01 };
