@@ -32,7 +32,7 @@ static void BM_Matrix_eigenmat3x3f_multTranspose(benchmark::State& state);
 constexpr int64_t minSubIterations = 8 << 4;
 constexpr int64_t maxSubIterations = 8 << 6;
 
-#define BMARGS ->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond)
+#define BMARGS ->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })
 
 BENCHMARK(BM_Matrix_typemat3x3f_construct) BMARGS;
 BENCHMARK(BM_Matrix_typemat3x3f_construct_noinit) BMARGS;
@@ -44,8 +44,10 @@ BENCHMARK(BM_Matrix_eigenmat33_invert) BMARGS;
 BENCHMARK(BM_Matrix_typemat3x3f_determinant) BMARGS;
 BENCHMARK(BM_Matrix_eigenmat33_determinant) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typematf_matmult, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typematf_matmult, 4) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typematf_matmult, 24) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_matmult, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_matmult, 4) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmatf_matmult, 24) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typematf_vecmult, 3) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typematf_vecmult, 24) BMARGS;
@@ -238,10 +240,11 @@ void BM_Matrix_typematf_matmult(benchmark::State& state)
 
     for (auto _ : state)
     {
-        for (auto i = 0 ; i < state.range(0); i++)
-        {
-            benchmark::DoNotOptimize(vc1[i]*vc2[i]);
-        }
+        // for (auto i = 0 ; i < state.range(0); i++)
+        // {
+        //     benchmark::DoNotOptimize(vc1[i]*vc2[i]);
+        // }
+        benchmark::DoNotOptimize(vc1[0]*vc2[0]);
     }
 }
 
@@ -277,11 +280,13 @@ void BM_Matrix_eigenmatf_matmult(benchmark::State& state)
 
     for (auto _ : state)
     {
-        for (auto i = 0; i < state.range(0); i++)
-        {
-            Eigen::Matrix<float, N, N > product = vc1[i] * vc2[i];
-            benchmark::DoNotOptimize(product);
-        }
+        // for (auto i = 0; i < state.range(0); i++)
+        // {
+        //     Eigen::Matrix<float, N, N > product = vc1[i] * vc2[i];
+        //     benchmark::DoNotOptimize(product);
+        // }
+        Eigen::Matrix<float, N, N > product = vc1[0] * vc2[0];
+        benchmark::DoNotOptimize(product);
     }
 }
 
