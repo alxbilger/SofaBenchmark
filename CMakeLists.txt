@@ -52,6 +52,7 @@ list(APPEND SOURCE_FILES
     ${SOFABENCHMARK_SRC}/benchmarks/SofaHelper/MapPtrStableCompare.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/SofaSimulationCore/TaskScheduler.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Component.SolidMechanics.FEM.Elastic/HexahedronFEMForceField_benchmark.cpp
+    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.Component.SolidMechanics.FEM.Elastic/TetrahedronFEMForceField_benchmark.cpp
 )
 
 option(SOFABENCHMARK_BUILD_BENCH_SCENES "Add benchmarking SOFA scenes." ON)
