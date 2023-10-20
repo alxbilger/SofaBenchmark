@@ -35,6 +35,7 @@ list(APPEND HEADER_FILES
     ${SOFABENCHMARK_SRC}/utils/thread_pool.hpp
 )
 list(APPEND SOURCE_FILES
+    ${SOFABENCHMARK_SRC}/benchmarks/Sofa.LinearAlgebra/BTDMatrix.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.LinearAlgebra/SparseMatrixCompression.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.LinearAlgebra/SparseMatrixMulTranspose.cpp
     ${SOFABENCHMARK_SRC}/benchmarks/Sofa.LinearAlgebra/SparseMatrixProduct.cpp
