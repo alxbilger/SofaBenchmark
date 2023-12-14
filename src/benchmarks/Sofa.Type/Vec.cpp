@@ -158,8 +158,8 @@ void BM_Vec_CopyStdCopy(benchmark::State& state)
 
     for (auto _ : state)
     {
-        float* valuePtr = list.begin()->array();
-        std::copy(valuePtr, valuePtr + 3 * list.size(), b.begin()->array());
+        float* valuePtr = list.begin()->ptr();
+        std::copy_n(valuePtr, 3 * list.size(), b.begin()->ptr());
     }
 }
 
