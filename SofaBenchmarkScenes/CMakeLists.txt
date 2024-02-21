@@ -3,6 +3,7 @@ project(SofaBenchmarkScenes)
 
 sofa_find_package(Sofa.Simulation.Graph REQUIRED)
 sofa_find_package(Sofa.Component REQUIRED)
+sofa_find_package(Sofa.SimpleApi REQUIRED)
 
 set(SOFABENCHMARKSCENES_SRC "src")
 
@@ -24,7 +25,7 @@ set(SOURCE_FILES
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC benchmark::benchmark)
-target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Simulation.Graph Sofa.Component)
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Simulation.Graph Sofa.Component Sofa.SimpleApi)
 target_include_directories(${PROJECT_NAME} PUBLIC ${SOFABENCHMARKSCENES_SRC})
 
 # regroup benchmark stuff into its own IDE folder
