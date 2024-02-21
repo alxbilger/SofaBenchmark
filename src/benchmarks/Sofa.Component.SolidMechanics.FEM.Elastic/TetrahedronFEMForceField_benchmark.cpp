@@ -3,7 +3,7 @@
 #include <sofa/core/behavior/BaseLocalForceFieldMatrix.h>
 #include <sofa/core/behavior/ForceField.h>
 #include <sofa/simulation/Simulation.h>
-#include <sofa/simulation/graph/SimpleApi.h>
+#include <sofa/simpleapi/SimpleApi.h>
 #include <sofa/simulation/Node.h>
 #include <sofa/simulation/graph/DAGNode.h>
 
