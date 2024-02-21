@@ -22,6 +22,7 @@ sofa_find_package(Sofa.Type REQUIRED)
 sofa_find_package(Sofa.Core REQUIRED)
 sofa_find_package(Sofa.Simulation.Graph REQUIRED)
 sofa_find_package(Sofa.Component.Collision.Geometry REQUIRED)
+sofa_find_package(Sofa.SimpleApi REQUIRED)
 
 set(SOFABENCHMARK_SRC "src")
 
@@ -62,7 +63,7 @@ endif()
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC benchmark::benchmark)
-target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Type Sofa.Core Sofa.Simulation.Graph Sofa.Component.Collision.Geometry)
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Type Sofa.Core Sofa.Simulation.Graph Sofa.Component.Collision.Geometry Sofa.SimpleApi)
 target_include_directories(${PROJECT_NAME} PUBLIC ${SOFABENCHMARK_SRC})
 
 # regroup benchmark stuff into its own IDE folder
