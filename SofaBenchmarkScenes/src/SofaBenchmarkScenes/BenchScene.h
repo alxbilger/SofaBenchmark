@@ -25,9 +25,6 @@ void BM_Scene_bench_SimulationFactor(benchmark::State& state)
     
     sofa::component::init();
 
-    sofa::simulation::Simulation* simu = new sofa::simulation::graph::DAGSimulation();
-    setSimulation(simu);
-
     for (auto _ : state)
     {
         for (auto i = 0; i < state.range(0); ++i)
@@ -41,10 +38,10 @@ void BM_Scene_bench_SimulationFactor(benchmark::State& state)
             state.ResumeTiming();
             for (auto j = 0; j < TScene::nbSteps; j++)
             {
-                simu->animate(root.get(), TScene::dt);
+                sofa::simulation::node::animate(root.get(), TScene::dt);
             }
 
-            simu->unload(root);
+            sofa::simulation::node::unload(root);
         }
     }
 
