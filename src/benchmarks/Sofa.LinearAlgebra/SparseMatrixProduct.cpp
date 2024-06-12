@@ -1,15 +1,49 @@
 ﻿#include <iostream>
 #include <benchmark/benchmark.h>
 
-#include <sofa/linearalgebra/SparseMatrixProduct[EigenSparseMatrix].h>
+#include <sofa/linearalgebra/SparseMatrixProduct.inl>
+#include <sofa/simulation/BaseSimulationExporter.h>
+#include <sofa/simulation/MainTaskSchedulerFactory.h>
+#include <sofa/simulation/MainTaskSchedulerRegistry.h>
+#include <sofa/simulation/ParallelSparseMatrixProduct.h>
 #include <utils/SparseMatrix.h>
 
+template<class T>
+struct SparseMatrixProductInit
+{
+    static void init(T& product)
+    {
+        SOFA_UNUSED(product);
+    };
+
+    static void cleanup()
+    {
+    }
+};
+
+template<class Lhs, class Rhs, class ResultType>
+struct SparseMatrixProductInit<
+    sofa::simulation::ParallelSparseMatrixProduct<Lhs, Rhs, ResultType>>
+{
+    static void init(sofa::simulation::ParallelSparseMatrixProduct<Lhs, Rhs, ResultType>& product)
+    {
+        product.taskScheduler = sofa::simulation::MainTaskSchedulerFactory::createInRegistry();
+        product.taskScheduler->init();
+    };
+
+    static void cleanup()
+    {
+        sofa::simulation::MainTaskSchedulerRegistry::clear();
+    }
+};
 
 
-template<class TMatrix>
+template<class TProduct>
 class BM_SparseMatrixProduct : public benchmark::Fixture
 {
 public:
+    using MatrixLHS = typename TProduct::LhsCleaned;
+    using MatrixRHS = typename TProduct::RhsCleaned;
 
     void SetUp(const ::benchmark::State& state) override
     {
@@ -20,7 +54,7 @@ public:
         auto itA = matrixMapA.find({matrixSize, sparsityPerMil});
         if (itA == matrixMapA.end())
         {
-            TMatrix matrixA;
+            MatrixLHS matrixA;
             generateRandomSparseMatrix(matrixA, matrixSize, matrixSize, sparsity);
             if (const auto insertIt = matrixMapA.insert({{matrixSize, sparsityPerMil}, matrixA}); insertIt.second)
             {
@@ -35,7 +69,7 @@ public:
         auto itB = matrixMapB.find({matrixSize, sparsityPerMil});
         if (itB == matrixMapB.end())
         {
-            TMatrix matrixB;
+            MatrixRHS matrixB;
             generateRandomSparseMatrix(matrixB, matrixSize, matrixSize, sparsity);
             if (const auto insertIt = matrixMapB.insert({ {matrixSize, sparsityPerMil}, matrixB}); insertIt.second)
             {
@@ -50,14 +84,15 @@ public:
         auto it = productMap.find({matrixSize, sparsityPerMil});
         if (it == productMap.end())
         {
-            sofa::linearalgebra::SparseMatrixProduct<TMatrix> p;
+            TProduct p;
             const auto insertIt = productMap.insert({ {matrixSize, sparsityPerMil}, p});
             if (insertIt.second)
             {
                 product = &insertIt.first->second;
+                SparseMatrixProductInit<TProduct>::init(*product);
 
-                product->matrixA = a;
-                product->matrixB = b;
+                product->m_lhs = a;
+                product->m_rhs = b;
                 product->computeProduct();
             }
         }
@@ -68,70 +103,105 @@ public:
 
     }
 
+    void TearDown(const ::benchmark::State& state) override
+    {
+        SparseMatrixProductInit<TProduct>::cleanup();
+    }
+
     void regularProduct(benchmark::State& state)
     {
+        SparseMatrixProductInit<TProduct>::init(*product);
         product->computeRegularProduct();
     }
 
     void fastProduct(benchmark::State& state)
     {
+        SparseMatrixProductInit<TProduct>::init(*product);
         product->computeProduct();
     }
 
     void forceComputingIntersection(benchmark::State& state)
     {
+        SparseMatrixProductInit<TProduct>::init(*product);
         product->computeProduct(true);
     }
 
-    sofa::linearalgebra::SparseMatrixProduct<TMatrix>* product { nullptr };
+    TProduct* product { nullptr };
 
 private:
 
-    TMatrix* a { nullptr };
-    TMatrix* b { nullptr };
+    MatrixLHS* a { nullptr };
+    MatrixRHS* b { nullptr };
 
-    static std::map< std::pair< int, int>, TMatrix> matrixMapA, matrixMapB;
-    static std::map< std::pair< int, int>, sofa::linearalgebra::SparseMatrixProduct<TMatrix> > productMap;
+    static std::map< std::pair< int, int>, MatrixLHS> matrixMapA;
+    static std::map< std::pair< int, int>, MatrixRHS> matrixMapB;
+    static std::map< std::pair< int, int>, TProduct > productMap;
 };
 
-template<class TMatrix>
-std::map< std::pair< int, int>, TMatrix> BM_SparseMatrixProduct<TMatrix>::matrixMapA;
-template<class TMatrix>
-std::map< std::pair< int, int>, TMatrix> BM_SparseMatrixProduct<TMatrix>::matrixMapB;
-template<class TMatrix>
-std::map< std::pair< int, int>, sofa::linearalgebra::SparseMatrixProduct<TMatrix> > BM_SparseMatrixProduct<TMatrix>::productMap;
+template<class TProduct>
+std::map< std::pair< int, int>, typename BM_SparseMatrixProduct<TProduct>::MatrixLHS> BM_SparseMatrixProduct<TProduct>::matrixMapA;
+template<class TProduct>
+std::map< std::pair< int, int>, typename BM_SparseMatrixProduct<TProduct>::MatrixRHS> BM_SparseMatrixProduct<TProduct>::matrixMapB;
+template<class TProduct>
+std::map< std::pair< int, int>, TProduct > BM_SparseMatrixProduct<TProduct>::productMap;
 
-BENCHMARK_TEMPLATE_DEFINE_F(BM_SparseMatrixProduct, RegularProduct, Eigen::SparseMatrix<SReal>)(benchmark::State& st)
-{
-    for (auto _ : st)
-    {
-        this->regularProduct(st);
-    }
-}
-BENCHMARK_REGISTER_F(BM_SparseMatrixProduct, RegularProduct)->Unit(benchmark::kMicrosecond)
-    ->ArgsProduct({{100, 1000}, {10, 20, 100, 150}})
-    ->Args({10000, 1})
-    ->Args({10000, 5});
+#define BENCHARGS \
+    ->ArgsProduct({{100, 1000}, {10, 20, 100, 150}}) \
+    ->Args({10000, 1}) \
+    ->Args({10000, 5}) \
 
-BENCHMARK_TEMPLATE_DEFINE_F(BM_SparseMatrixProduct, FastProduct, Eigen::SparseMatrix<SReal>)(benchmark::State& st)
-{
-    for (auto _ : st)
-    {
-        this->fastProduct(st);
-    }
-}
-BENCHMARK_REGISTER_F(BM_SparseMatrixProduct, FastProduct)->Unit(benchmark::kMicrosecond)
-    ->ArgsProduct({{100, 1000}, {10, 20, 100, 150}})
-    ->Args({10000, 1})
-    ->Args({10000, 5});
+#define SPARSEMATRIXPRODUCTBENCHMARK(Name, ScalarType, ProductType, StorageLHS, StorageRHS, StorageResult) \
+    using Product ## Name = ProductType< \
+        Eigen::SparseMatrix<ScalarType, StorageLHS>, \
+        Eigen::SparseMatrix<ScalarType, StorageRHS>, \
+        Eigen::SparseMatrix<ScalarType, StorageResult> \
+    >;\
+    BENCHMARK_TEMPLATE_DEFINE_F(BM_SparseMatrixProduct, RegularProduct ## Name, Product ## Name)(benchmark::State& st) \
+    { \
+        for (auto _ : st) \
+        {\
+            this->regularProduct(st); \
+        }\
+    } \
+    BENCHMARK_TEMPLATE_DEFINE_F(BM_SparseMatrixProduct, FastProduct ## Name, Product ## Name)(benchmark::State& st) \
+    { \
+        for (auto _ : st) \
+        {\
+            this->fastProduct(st); \
+        }\
+    } \
+    BENCHMARK_TEMPLATE_DEFINE_F(BM_SparseMatrixProduct, ForceComputingIntersection ## Name, Product ## Name)(benchmark::State& st) \
+    { \
+        for (auto _ : st) \
+        {\
+            this->forceComputingIntersection(st); \
+        }\
+    }\
+    BENCHMARK_REGISTER_F(BM_SparseMatrixProduct, RegularProduct ## Name)->Unit(benchmark::kMicrosecond) BENCHARGS;\
+    BENCHMARK_REGISTER_F(BM_SparseMatrixProduct, FastProduct ## Name)->Unit(benchmark::kMicrosecond) BENCHARGS;\
+    BENCHMARK_REGISTER_F(BM_SparseMatrixProduct, ForceComputingIntersection ## Name)->Unit(benchmark::kMicrosecond) BENCHARGS;
 
 
-BENCHMARK_TEMPLATE_DEFINE_F(BM_SparseMatrixProduct, ForceComputingIntersection, Eigen::SparseMatrix<SReal>)(benchmark::State& st)
-{
-    for (auto _ : st)
-    {
-        this->forceComputingIntersection(st);
-    }
-}
-// BENCHMARK_REGISTER_F(BM_SparseMatrixProduct, ForceComputingIntersection)->Unit(benchmark::kMicrosecond)
-//     ->ArgsProduct({{100, 1000},{10}});
+using Eigen::ColMajor;
+using Eigen::RowMajor;
+
+SPARSEMATRIXPRODUCTBENCHMARK(ColColCol, SReal, sofa::linearalgebra::SparseMatrixProduct, ColMajor, ColMajor, ColMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(RowColCol, SReal, sofa::linearalgebra::SparseMatrixProduct, RowMajor, ColMajor, ColMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(ColRowCol, SReal, sofa::linearalgebra::SparseMatrixProduct, ColMajor, RowMajor, ColMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(RowRowCol, SReal, sofa::linearalgebra::SparseMatrixProduct, RowMajor, RowMajor, ColMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(ColColRow, SReal, sofa::linearalgebra::SparseMatrixProduct, ColMajor, ColMajor, RowMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(RowColRow, SReal, sofa::linearalgebra::SparseMatrixProduct, RowMajor, ColMajor, RowMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(ColRowRow, SReal, sofa::linearalgebra::SparseMatrixProduct, ColMajor, RowMajor, RowMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(RowRowRow, SReal, sofa::linearalgebra::SparseMatrixProduct, RowMajor, RowMajor, RowMajor)
+
+SPARSEMATRIXPRODUCTBENCHMARK(ParColColCol, SReal, sofa::simulation::ParallelSparseMatrixProduct, ColMajor, ColMajor, ColMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(ParRowColCol, SReal, sofa::simulation::ParallelSparseMatrixProduct, RowMajor, ColMajor, ColMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(ParColRowCol, SReal, sofa::simulation::ParallelSparseMatrixProduct, ColMajor, RowMajor, ColMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(ParRowRowCol, SReal, sofa::simulation::ParallelSparseMatrixProduct, RowMajor, RowMajor, ColMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(ParColColRow, SReal, sofa::simulation::ParallelSparseMatrixProduct, ColMajor, ColMajor, RowMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(ParRowColRow, SReal, sofa::simulation::ParallelSparseMatrixProduct, RowMajor, ColMajor, RowMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(ParColRowRow, SReal, sofa::simulation::ParallelSparseMatrixProduct, ColMajor, RowMajor, RowMajor)
+SPARSEMATRIXPRODUCTBENCHMARK(ParRowRowRow, SReal, sofa::simulation::ParallelSparseMatrixProduct, RowMajor, RowMajor, RowMajor)
+
+#undef BENCHARGS
+#undef SPARSEMATRIXPRODUCTBENCHMARK
