@@ -29,6 +29,10 @@ static void BM_Matrix_eigenmat33_assign(benchmark::State& state);
 static void BM_Matrix_typemat3x3f_multTranspose(benchmark::State& state);
 static void BM_Matrix_eigenmat3x3f_multTranspose(benchmark::State& state);
 
+
+static void BM_Matrix_typemat3x3f_noconstexpr_bench(benchmark::State& state);
+static void BM_Matrix_typemat3x3f_constexpr_bench(benchmark::State& state);
+
 constexpr int64_t minSubIterations = 8 << 4;
 constexpr int64_t maxSubIterations = 8 << 6;
 
@@ -57,6 +61,9 @@ BENCHMARK(BM_Matrix_typemat3x3f_multTranspose) BMARGS;
 BENCHMARK(BM_Matrix_eigenmat3x3f_multTranspose) BMARGS;
 
 #undef BMARGS
+
+BENCHMARK(BM_Matrix_typemat3x3f_noconstexpr_bench)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
+BENCHMARK(BM_Matrix_typemat3x3f_constexpr_bench)->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond);
 
 void BM_Matrix_typemat3x3f_construct(benchmark::State& state)
 {
@@ -537,5 +544,41 @@ void BM_Matrix_eigenmat3x3f_multTranspose(benchmark::State& state)
             Eigen::Matrix<float, 3, 3 > product = vc1[i].transpose() * vc2[i];
             benchmark::DoNotOptimize(product);
         }
+    }
+}
+
+void BM_Matrix_typemat3x3f_constexpr_bench(benchmark::State& state)
+{
+    constexpr auto totalsize = 9;
+    constexpr auto values = CompileTimeRandomValuePool<float, totalsize>::get();
+
+    constexpr sofa::type::Mat3x3f mat{
+                sofa::type::Mat3x3f::LineNoInit{values[0], values[1], values[2]},
+                sofa::type::Mat3x3f::LineNoInit{values[3], values[4], values[5]},
+                sofa::type::Mat3x3f::LineNoInit{values[6], values[7], values[8]}
+            };
+
+    for (auto _ : state)
+    {
+        constexpr sofa::type::Mat3x3f res = mat.inverted() * mat.transposed() * mat.inverted() * mat.inverted() * mat.transposed() * mat.inverted() * mat.transposed() * mat.inverted() / 3.0f;
+        benchmark::DoNotOptimize(res);
+    }
+}
+
+void BM_Matrix_typemat3x3f_noconstexpr_bench(benchmark::State& state)
+{
+    constexpr auto totalsize = maxSubIterations * 9;
+    const auto values = RandomValuePool<float, totalsize>::get();
+
+    sofa::type::Mat3x3f mat{
+                sofa::type::Mat3x3f::LineNoInit{values[0], values[1], values[2]},
+                sofa::type::Mat3x3f::LineNoInit{values[3], values[4], values[5]},
+                sofa::type::Mat3x3f::LineNoInit{values[6], values[7], values[8]}
+    };
+
+    for (auto _ : state)
+    {
+        sofa::type::Mat3x3f res = mat.inverted() * mat.transposed() * mat.inverted() * mat.inverted() * mat.transposed() * mat.inverted() * mat.transposed() * mat.inverted() / 3.0f;
+        benchmark::DoNotOptimize(res);
     }
 }
