@@ -35,7 +35,7 @@ void BM_Data_GetValue(benchmark::State& state)
 {
     sofa::core::objectmodel::Data<T> data;
 
-    if constexpr (sofa::type::trait::is_vector<T>::value)
+    if constexpr (sofa::type::trait::is_vector<T>)
     {
         auto d = sofa::helper::getWriteOnlyAccessor(data);
         d.resize(state.range(0));
@@ -53,7 +53,7 @@ void BM_Data_ReadAccessor_ImplicitConversion(benchmark::State& state)
 {
     sofa::core::objectmodel::Data<T> data;
 
-    if constexpr (sofa::type::trait::is_vector<T>::value)
+    if constexpr (sofa::type::trait::is_vector<T>)
     {
         auto wa = sofa::helper::getWriteOnlyAccessor(data);
         wa.resize(state.range(0));
@@ -72,7 +72,7 @@ void BM_Data_ReadAccessor_ExplicitConversion(benchmark::State& state)
 {
     sofa::core::objectmodel::Data<T> data;
 
-    if constexpr (sofa::type::trait::is_vector<T>::value)
+    if constexpr (sofa::type::trait::is_vector<T>)
     {
         auto wa = sofa::helper::getWriteOnlyAccessor(data);
         wa.resize(state.range(0));
@@ -91,7 +91,7 @@ void BM_Data_ReadAccessor_StarOperatorConversion(benchmark::State& state)
 {
     sofa::core::objectmodel::Data<T> data;
 
-    if constexpr (sofa::type::trait::is_vector<T>::value)
+    if constexpr (sofa::type::trait::is_vector<T>)
     {
         auto wa = sofa::helper::getWriteOnlyAccessor(data);
         wa.resize(state.range(0));

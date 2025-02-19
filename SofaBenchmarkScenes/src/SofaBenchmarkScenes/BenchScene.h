@@ -71,7 +71,6 @@ void BM_Scene_bench_AdvancedTimer(benchmark::State& state, const std::vector<con
     sofa::component::init();
 
     sofa::simulation::Simulation* simu = new sofa::simulation::graph::DAGSimulation();
-    setSimulation(simu);
 
     std::vector<sofa::helper::AdvancedTimer::IdStep> timerIds;
     timerIds.reserve(advancedTimerLabels.size());
@@ -92,7 +91,7 @@ void BM_Scene_bench_AdvancedTimer(benchmark::State& state, const std::vector<con
         for (auto j = 0; j < state.range(0); j++)
         {
             sofa::helper::AdvancedTimer::begin("Animate");
-            simu->animate(root.get(), TScene::dt);
+            sofa::simulation::node::animate(root.get(), TScene::dt);
             sofa::helper::AdvancedTimer::end("Animate");
 
             const auto records = sofa::helper::AdvancedTimer::getStepData("Animate", true);
@@ -112,7 +111,7 @@ void BM_Scene_bench_AdvancedTimer(benchmark::State& state, const std::vector<con
 
         sofa::helper::AdvancedTimer::clearData("Animate");
 
-        simu->unload(root);
+        sofa::simulation::node::unload(root);
     }
 
     std::transform(avgTimers.begin(), avgTimers.end(), avgTimers.begin(), [&state](SReal t) { return t / state.range(0);});
@@ -136,7 +135,6 @@ void BM_Scene_bench_StepFactor(benchmark::State& state)
     sofa::component::init();
 
     sofa::simulation::Simulation* simu = new sofa::simulation::graph::DAGSimulation();
-    setSimulation(simu);
 
     for (auto _ : state)
     {
@@ -149,10 +147,10 @@ void BM_Scene_bench_StepFactor(benchmark::State& state)
         state.ResumeTiming();
         for (auto i = 0; i < state.range(0); ++i)
         {
-            simu->animate(root.get(), TScene::dt);
+            sofa::simulation::node::animate(root.get(), TScene::dt);
         }
 
-        simu->unload(root);
+        sofa::simulation::node::unload(root);
     }
 
     state.counters["FPS"] = benchmark::Counter(state.range(0), benchmark::Counter::kIsIterationInvariantRate);
