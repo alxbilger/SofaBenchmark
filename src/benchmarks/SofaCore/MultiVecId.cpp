@@ -23,7 +23,7 @@ BENCHMARK(BM_PassMultivecidByReference);
 
 void BM_PassMultivecidByValue(benchmark::State& state)
 {
-    auto pos = sofa::core::VecCoordId::position();
+    auto pos = sofa::core::vec_id::write_access::position;
     for (auto _ : state)
     {
         fooByValue(pos);
@@ -32,7 +32,7 @@ void BM_PassMultivecidByValue(benchmark::State& state)
 
 void BM_PassMultivecidByReference(benchmark::State& state)
 {
-    auto pos = sofa::core::VecCoordId::position();
+    auto pos = sofa::core::vec_id::write_access::position;
     for (auto _ : state)
     {
         fooByReference(pos);

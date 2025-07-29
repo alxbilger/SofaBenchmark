@@ -44,7 +44,7 @@ public:
 
         for (const auto& pos : matrixPositions)
         {
-            *(mat.wbloc(pos.first / 3, pos.second / 3, true)) += bloc;
+            *(mat.wblock(pos.first / 3, pos.second / 3, true)) += bloc;
         }
     }
 
