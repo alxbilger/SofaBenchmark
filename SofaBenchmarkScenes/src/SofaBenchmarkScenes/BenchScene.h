@@ -14,8 +14,6 @@
 
 #include <boost/intrusive_ptr.hpp>
 
-using sofa::simulation::setSimulation;
-
 // Generic benchmark for a scene (timing whole animation) with a fixed number of steps a certain number of time
 // TScene (template argument) needs to implement getRoot(), dt and nbSteps
 template<typename TScene>
