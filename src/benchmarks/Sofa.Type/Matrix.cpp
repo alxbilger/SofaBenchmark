@@ -50,31 +50,56 @@ constexpr int64_t maxSubIterations = 8 << 8;
 #define BMARGS ->RangeMultiplier(2)->Ranges({ {minSubIterations, maxSubIterations} })->Unit(benchmark::kMicrosecond)
 
 BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_construct, float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_construct, double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_construct_noinit, float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_construct_noinit, double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_transpose, float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_transpose, double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_invert, float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_invert, double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_determinant,float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_determinant,double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat_matmult, float, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat_matmult, double, 3) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat_matmult, float, 6) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat_matmult, double, 6) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat_matmult, float, 24) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat_matmult, double, 24) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat_vecmult, float, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat_vecmult, double, 3) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat_vecmult, float, 6) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat_vecmult, double, 6) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat_vecmult, float, 24) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat_vecmult, double, 24) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_assign, float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_assign, double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_multTranspose, float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_multTranspose, double) BMARGS;
 
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_construct, float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_construct, double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_transpose, float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_transpose, double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_invert, float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_invert, double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_determinant, float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_determinant, double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_matmult, float, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_matmult, double, 3) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_matmult, float, 6) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_matmult, double, 6) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_matmult, float, 24) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_matmult, double, 24) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_vecmult, float, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_vecmult, double, 3) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_vecmult, float, 6) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_vecmult, double, 6) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_vecmult, float, 24) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_vecmult, double, 24) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_assign, float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_assign, double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_multTranspose, float) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_multTranspose, double) BMARGS;
 
 #undef BMARGS
 
