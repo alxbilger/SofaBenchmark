@@ -15,8 +15,8 @@ template<typename ScalarType>
 static void BM_Matrix_typemat3x3_transpose(benchmark::State& state);
 template<typename ScalarType>
 static void BM_Matrix_typemat3x3_invert(benchmark::State& state);
-template<typename ScalarType>
-static void BM_Matrix_typemat3x3_determinant(benchmark::State& state);
+template<typename ScalarType, sofa::Size N>
+void BM_Matrix_typemat_determinant(benchmark::State& state);
 template<typename ScalarType, int N>
 static void BM_Matrix_typemat_matmult(benchmark::State& state);
 template<typename ScalarType, int N>
@@ -33,8 +33,8 @@ template<typename ScalarType>
 static void BM_Matrix_eigenmat3x3_transpose(benchmark::State& state);
 template<typename ScalarType>
 static void BM_Matrix_eigenmat3x3_invert(benchmark::State& state);
-template<typename ScalarType>
-static void BM_Matrix_eigenmat3x3_determinant(benchmark::State& state);
+template<typename ScalarType, sofa::Size N>
+void BM_Matrix_eigenmat_determinant(benchmark::State& state);
 template<typename ScalarType, int N>
 static void BM_Matrix_eigenmat_matmult(benchmark::State& state);
 template<typename ScalarType, int N>
@@ -57,8 +57,12 @@ BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_transpose, float) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_transpose, double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_invert, float) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_invert, double) BMARGS;
-BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_determinant,float) BMARGS;
-BENCHMARK_TEMPLATE(BM_Matrix_typemat3x3_determinant,double) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat_determinant, float, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat_determinant, double, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat_determinant, float, 4) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat_determinant, double, 4) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat_determinant, float, 12) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_typemat_determinant, double, 12) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat_matmult, float, 3) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat_matmult, double, 3) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_typemat_matmult, float, 6) BMARGS;
@@ -82,8 +86,12 @@ BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_transpose, float) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_transpose, double) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_invert, float) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_invert, double) BMARGS;
-BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_determinant, float) BMARGS;
-BENCHMARK_TEMPLATE(BM_Matrix_eigenmat3x3_determinant, double) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_determinant, float, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_determinant, double, 3) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_determinant, float, 4) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_determinant, double, 4) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_determinant, float, 12) BMARGS;
+BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_determinant, double, 12) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_matmult, float, 3) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_matmult, double, 3) BMARGS;
 BENCHMARK_TEMPLATE(BM_Matrix_eigenmat_matmult, float, 6) BMARGS;
@@ -447,25 +455,28 @@ void BM_Matrix_eigenmat_vecmult(benchmark::State& state)
     }
 }
 
-template<typename ScalarType>
-void BM_Matrix_typemat3x3_determinant(benchmark::State& state)
+template<typename ScalarType, sofa::Size N>
+void BM_Matrix_typemat_determinant(benchmark::State& state)
 {
-    constexpr auto totalsize = maxSubIterations * 9;
+    constexpr auto totalsize = maxSubIterations * N * N;
     const std::array<ScalarType, totalsize>& values = RandomValuePool<ScalarType, totalsize>::get();
 
-    using Matrix = sofa::type::Mat<3,3,ScalarType>;
-    using Line = typename Matrix::LineNoInit;
-    
-    std::vector<Matrix> vc;
+    std::vector<sofa::type::Mat<N, N, ScalarType>> vc;
     vc.reserve(state.range(0));
 
-    for (unsigned int i = 0; i < state.range(0); i++)
+    auto it = values.begin();
+
+    for (unsigned int i = 0; i < state.range(0); ++i)
     {
-        vc.emplace_back(
-            Line{values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2]},
-            Line{values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5]},
-            Line{values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8]}
-        );
+        sofa::type::Mat<N, N, ScalarType> mat;
+        for (sofa::Size r = 0; r < N; ++r)
+        {
+            for (sofa::Size c = 0; c < N; ++c)
+            {
+                mat[r][c] = *it++;
+            }
+        }
+        vc.push_back(mat);
     }
 
     for (auto _ : state)
@@ -477,22 +488,30 @@ void BM_Matrix_typemat3x3_determinant(benchmark::State& state)
     }
 }
 
-template<typename ScalarType>
-void BM_Matrix_eigenmat3x3_determinant(benchmark::State& state)
+template<typename ScalarType, sofa::Size N>
+void BM_Matrix_eigenmat_determinant(benchmark::State& state)
 {
-    constexpr auto totalsize = maxSubIterations * 9;
+    constexpr auto totalsize = maxSubIterations * N * N;
     const std::array<ScalarType, totalsize>& values = RandomValuePool<ScalarType, totalsize>::get();
 
-    using Matrix = Eigen::Matrix<ScalarType, 3, 3>;
+    using Matrix = Eigen::Matrix<ScalarType, N, N>;
     
     std::vector<Matrix> vc;
     vc.resize(state.range(0));
 
-    for (unsigned int i = 0; i < state.range(0); i++)
+    auto it = values.begin();
+
+    for (unsigned int i = 0; i < state.range(0); ++i)
     {
-        vc[i] << values[i * 9 + 0], values[i * 9 + 1], values[i * 9 + 2],
-            values[i * 9 + 3], values[i * 9 + 4], values[i * 9 + 5],
-            values[i * 9 + 6], values[i * 9 + 7], values[i * 9 + 8];
+        Matrix mat;
+        for (sofa::Size r = 0; r < N; ++r)
+        {
+            for (sofa::Size c = 0; c < N; ++c)
+            {
+                mat(r, c) = *it++;
+            }
+        }
+        vc.push_back(mat);
     }
 
     for (auto _ : state)
