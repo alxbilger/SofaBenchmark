@@ -5,7 +5,6 @@
 #include <sofa/simulation/Simulation.h>
 #include <sofa/simpleapi/SimpleApi.h>
 #include <sofa/simulation/Node.h>
-#include <sofa/simulation/graph/DAGNode.h>
 
 /**
  * Benchmark of HexahedronFEMForceField::buildStiffnessMatrix
@@ -20,7 +19,7 @@
 static void BM_HexahedronFEMForceField_buildStiffnessMatrix(benchmark::State& state)
 {
     const auto multiplier = state.range(0);
-    const sofa::simulation::NodeSPtr root = sofa::core::objectmodel::New<sofa::simulation::graph::DAGNode>();
+    const sofa::simulation::NodeSPtr root = sofa::core::objectmodel::New<sofa::simulation::Node>();
     sofa::simpleapi::createObject(root, "DefaultAnimationLoop");
 
     sofa::simpleapi::importPlugin("Sofa.Component.ODESolver.Backward");

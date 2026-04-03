@@ -1,6 +1,6 @@
 #include "NarrowPhaseDetection.h"
 
-#include <sofa/component/collision/geometry/PointModel.h>
+#include <sofa/component/collision/geometry/PointCollisionModel.h>
 #include <benchmark/benchmark.h>
 
 using sofa::core::objectmodel::New;

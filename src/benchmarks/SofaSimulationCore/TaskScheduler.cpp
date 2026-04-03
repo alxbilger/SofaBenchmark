@@ -1,8 +1,8 @@
 #include <benchmark/benchmark.h>
-#include <sofa/simulation/DefaultTaskScheduler.h>
-#include <sofa/simulation/CpuTask.h>
-#include <sofa/simulation/MainTaskSchedulerFactory.h>
-#include <sofa/simulation/ParallelForEach.h>
+#include <sofa/simulation/task/DefaultTaskScheduler.h>
+#include <sofa/simulation/task/CpuTask.h>
+#include <sofa/simulation/task/MainTaskSchedulerFactory.h>
+#include <sofa/simulation/task/ParallelForEach.h>
 #include <sofa/type/Mat.h>
 #include <sofa/type/vector_T.h>
 #include <utils/RandomValuePool.h>
