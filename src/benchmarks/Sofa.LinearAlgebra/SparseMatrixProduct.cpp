@@ -1,10 +1,10 @@
-﻿#include <iostream>
+#include <iostream>
 #include <benchmark/benchmark.h>
 
 #include <sofa/linearalgebra/SparseMatrixProduct.inl>
 #include <sofa/simulation/BaseSimulationExporter.h>
-#include <sofa/simulation/MainTaskSchedulerFactory.h>
-#include <sofa/simulation/MainTaskSchedulerRegistry.h>
+#include <sofa/simulation/task/MainTaskSchedulerFactory.h>
+#include <sofa/simulation/task/MainTaskSchedulerRegistry.h>
 #include <sofa/simulation/ParallelSparseMatrixProduct.h>
 #include <utils/SparseMatrix.h>
 

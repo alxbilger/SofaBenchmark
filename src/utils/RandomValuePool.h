@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <random>
 #include <array>
+#include <algorithm>
 
 template<typename Type, std::size_t Size>
 struct RandomValuePool
